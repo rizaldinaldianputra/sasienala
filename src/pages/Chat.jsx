@@ -5,14 +5,6 @@ import { useChat } from '../hook/useChat';
 
 const Chat = () => {
   const { messages, loading, error, sendMessage } = useChat();
-  const [input, setInput] = useState('');
-
-  const handleSend = () => {
-    if (input.trim()) {
-      sendMessage(input.trim());
-      setInput('');
-    }
-  };
 
   return (
     <div className="min-h-screen bg-white font-sans pb-20">

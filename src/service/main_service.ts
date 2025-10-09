@@ -7,6 +7,7 @@ const createApi = (baseURL: string = BASE_URL) =>
     baseURL,
     headers: {
       'Content-Type': 'application/json',
+      'x-api-key': 'secret-key-punya-sasienala-bunnyeee28-super-secret',
       Accept: 'application/json',
     },
   });

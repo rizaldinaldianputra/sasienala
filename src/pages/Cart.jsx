@@ -1,51 +1,70 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { COLORS } from '../constants/colors';
+import { useCart } from '../hook/useCart';
 
 const Cart = () => {
-  const [items, setItems] = useState([
-    { id: 1, name: 'Recycle Boucle Knit Cardigan', color: 'Pink', price: 120, quantity: 1 },
-    { id: 2, name: '2021 Signature Sweatshirt', color: '[NAVY]', price: 120, quantity: 1 },
-  ]);
+  const { cartItems, getCart, updateQuantity, deleteCart } = useCart();
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    setItems(items.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)));
-  };
+  useEffect(() => {
+    getCart();
+  }, []);
 
-  const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-sm border border-gray-200">
-        {/* Header */}
         <div className="border-b border-gray-200 px-6 py-4">
           <h1 className="text-2xl font-bold" style={{ color: COLORS.primary }}>
             CART
           </h1>
         </div>
 
-        {/* Cart Items */}
         <div className="p-6 space-y-6">
-          {items.map((item) => (
+          {cartItems.map((item) => (
             <div
               key={item.id}
               className="flex items-center space-x-4 pb-6 border-b border-gray-100"
             >
-              {/* Product Image */}
-              <div className="w-20 h-20 bg-pink-100 rounded-lg flex items-center justify-center">
-                <span className="text-pink-500 text-xs font-medium">IMAGE</span>
+              <div className="w-20 h-20 bg-pink-100 rounded-lg flex items-center justify-center overflow-hidden">
+                <img
+                  src={item.product_image}
+                  alt={item.product_name}
+                  className="object-cover w-full h-full"
+                />
               </div>
 
-              {/* Product Info */}
               <div className="flex-1">
-                <h3 className="text-gray-900 font-medium">{item.name}</h3>
-                <p className="text-gray-500 text-sm">{item.color}</p>
-                <p className="font-bold mt-1" style={{ color: COLORS.primary }}>
-                  IDR {item.price * item.quantity}
-                </p>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-gray-900 font-medium">{item.product_name}</h3>
+                    <p className="text-gray-500 text-sm">{item.model_color}</p>
+                    <p className="font-bold mt-1" style={{ color: COLORS.primary }}>
+                      IDR {item.price * item.quantity}
+                    </p>
+                  </div>
 
-                {/* Quantity Controls */}
+                  {/* Tombol Delete */}
+                  <button
+                    onClick={() => deleteCart(item.id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M6 2a1 1 0 00-1 1v1H3.5a.5.5 0 000 1h.634l.347 9.33A2 2 0 006.475 16h6.95a2 2 0 001.994-1.67L15.866 5H16.5a.5.5 0 000-1H15V3a1 1 0 00-1-1H6zm2 4a.5.5 0 01.5.5v6a.5.5 0 01-1 0v-6A.5.5 0 018 6zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0v-6z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
                 <div className="flex items-center space-x-3 mt-2">
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -67,7 +86,6 @@ const Cart = () => {
             </div>
           ))}
 
-          {/* Subtotal Section */}
           <div className="pt-4">
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600 font-medium">SUB TOTAL</span>
@@ -76,7 +94,6 @@ const Cart = () => {
               </span>
             </div>
 
-            {/* Note */}
             <div className="mt-4 pt-4 border-t border-gray-100">
               <p className="text-gray-500 text-xs leading-relaxed">
                 shipping charges, taxes and discount codes
@@ -87,7 +104,6 @@ const Cart = () => {
           </div>
         </div>
 
-        {/* Checkout Button */}
         <div className="px-6 pb-6">
           <Link
             to="/checkout"

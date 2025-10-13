@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import { useState } from 'react';
 import { authService } from '../service/auth_service';
 
@@ -10,6 +11,10 @@ export const useAuth = () => {
     setError(null);
     try {
       const res = await authService.login({ email, password });
+      const firstUserId = res.user_id;
+      if (firstUserId) {
+        Cookies.set('userId', firstUserId.toString(), { expires: 7 });
+      }
       return res;
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Login failed');

@@ -11,14 +11,15 @@ const Product = () => {
   const [searchHistory, setSearchHistory] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [localProducts, setLocalProducts] = useState([]);
 
   const {
-    data: products,
+    data,
     loading,
     error,
     searchProduct,
     refetch,
-    fetchProductsByCategory,
+    fetchProductsByCategory: fetchByCategory,
   } = useProducts();
 
   // ambil kategori produk
@@ -36,11 +37,15 @@ const Product = () => {
 
     if (key === '') {
       await refetch();
+      setSelectedCategory(null);
+      setLocalProducts([]);
     } else {
       await searchProduct(key);
       if (!searchHistory.includes(key)) {
         setSearchHistory([key, ...searchHistory]);
       }
+      setSelectedCategory(null);
+      setLocalProducts([]);
     }
   };
 
@@ -48,18 +53,23 @@ const Product = () => {
     setSearchHistory(searchHistory.filter((item) => item !== key));
   };
 
-  const handleCategorySelect = async (category) => {
-    if (category === selectedCategory) {
+  const handleCategorySelect = async (categoryId) => {
+    if (categoryId === selectedCategory) {
       setSelectedCategory(null);
+      setLocalProducts([]);
       await refetch();
     } else {
-      setSelectedCategory(category);
-      await fetchProductsByCategory(category);
+      setSelectedCategory(categoryId);
+      const res = await fetchByCategory(categoryId); // harus mengembalikan object
+      const productList = res?.products ?? []; // ambil array products
+      setLocalProducts(productList);
     }
   };
+  console.log('selectedCategory', selectedCategory);
+  console.log('localProducts', localProducts);
 
-  // normalisasi ProductResponse
-  const productList = products?.data ?? [];
+  // normalisasi productList
+  const productList = selectedCategory ? localProducts : data?.data ?? [];
 
   return (
     <div className="min-h-screen bg-white font-sans pb-20">
@@ -104,9 +114,9 @@ const Product = () => {
           {categories.map((cat) => (
             <button
               key={cat.category_id}
-              onClick={() => handleCategorySelect(cat.display_category_name)}
+              onClick={() => handleCategorySelect(cat.category_id)}
               className={`px-4 py-2 text-sm rounded-full whitespace-nowrap ${
-                selectedCategory === cat.display_category_name
+                selectedCategory === cat.category_id
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-100 text-gray-700'
               }`}

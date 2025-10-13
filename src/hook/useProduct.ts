@@ -62,10 +62,12 @@ export const useProducts = (autoFetchAll = true) => {
     try {
       setLoading(true);
       const res = await productService.getAllProductByCategory(categoryId);
-      setData({ count: res.length, data: res });
+      // normalisasi semua products dari category
+      const productsArray = res || [];
+      setData({ data: productsArray, count: productsArray.length });
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Gagal mengambil produk berdasarkan kategori');
+    } catch (err) {
+      setError('Gagal mengambil produk berdasarkan kategori');
     } finally {
       setLoading(false);
     }

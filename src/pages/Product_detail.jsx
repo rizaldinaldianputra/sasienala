@@ -17,6 +17,8 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [imageList, setImageList] = useState([]);
+  const [stock, setStock] = useState(0);
+  const [price, setPrice] = useState(0);
 
   // Ref untuk memastikan fetch cuma sekali
   const fetchedRef = useRef(false);
@@ -31,9 +33,18 @@ const ProductDetail = () => {
   useEffect(() => {
     if (product) {
       if (product.model_list && product.model_list.length > 0) {
-        setSelectedColor(product.model_list[0].color);
-        if (product.model_list[0].size_list.length > 0)
-          setSelectedSize(product.model_list[0].size_list[0].size);
+        const defaultColor = product.model_list[0].color_code || product.model_list[0].color;
+        setSelectedColor(defaultColor);
+
+        if (product.model_list[0].size_list.length > 0) {
+          const defaultSize = product.model_list[0].size_list[0].size;
+          setSelectedSize(defaultSize);
+
+          // Set stock & price default
+          const defaultSizeModel = product.model_list[0].size_list[0];
+          setStock(defaultSizeModel.stock || 0);
+          setPrice(defaultSizeModel.price || 0);
+        }
       }
       if (product.image_list && product.image_list.length > 0) {
         setImageList(product.image_list);
@@ -45,16 +56,40 @@ const ProductDetail = () => {
   // Update imageList saat color berubah
   useEffect(() => {
     if (selectedColor && product?.model_list) {
-      const colorModel = product.model_list.find((m) => m.color === selectedColor);
+      const colorModel = product.model_list.find(
+        (m) => (m.color_code || m.color) === selectedColor,
+      );
       if (colorModel && colorModel.image) {
         setImageList([
           colorModel.image,
           ...product.image_list.filter((img) => img !== colorModel.image),
         ]);
         setSelectedImage(0);
+
+        // Set default size, stock & price saat color berubah
+        if (colorModel.size_list.length > 0) {
+          setSelectedSize(colorModel.size_list[0].size);
+          setStock(colorModel.size_list[0].stock || 0);
+          setPrice(colorModel.size_list[0].price || 0);
+        }
       }
     }
   }, [selectedColor, product]);
+
+  // Update stock & price saat size berubah
+  useEffect(() => {
+    if (selectedColor && selectedSize && product?.model_list) {
+      const colorModel = product.model_list.find(
+        (m) => (m.color_code || m.color) === selectedColor,
+      );
+      if (!colorModel) return;
+      const sizeModel = colorModel.size_list.find((s) => s.size === selectedSize);
+      if (!sizeModel) return;
+
+      setStock(sizeModel.stock || 0);
+      setPrice(sizeModel.price || 0);
+    }
+  }, [selectedSize, selectedColor, product]);
 
   if (loading)
     return (
@@ -78,11 +113,14 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     if (!selectedColor || !selectedSize) return;
 
-    const colorModel = product.model_list.find((m) => m.color === selectedColor);
+    const colorModel = product.model_list.find((m) => (m.color_code || m.color) === selectedColor);
     if (!colorModel) return;
 
     const sizeModel = colorModel.size_list.find((s) => s.size === selectedSize);
-    if (!sizeModel) return;
+    if (!sizeModel || sizeModel.stock <= 0) {
+      alert('Stok tidak tersedia');
+      return;
+    }
 
     const userId = getUserId();
     if (!userId) return;
@@ -142,16 +180,13 @@ const ProductDetail = () => {
             <span className="text-sm text-gray-600 ml-2">({product.reviews.length} Ulasan)</span>
           </div>
         )}
-        {/* Price */}
+        {/* Price & Stock */}
         {selectedColor && selectedSize && (
           <div className="flex items-baseline mb-4">
             <p className="text-2xl font-bold text-orange-600 mr-2">
-              Rp{' '}
-              {product.model_list
-                .find((m) => m.color === selectedColor)
-                ?.size_list.find((s) => s.size === selectedSize)
-                ?.price.toLocaleString('id-ID') || '0'}
+              Rp {price.toLocaleString('id-ID')}
             </p>
+            <span className="text-sm text-gray-500 ml-3">Stok: {stock}</span>
           </div>
         )}
       </div>
@@ -161,17 +196,29 @@ const ProductDetail = () => {
         <div className="p-4 sm:p-6 bg-white shadow-md mb-4">
           <h3 className="text-base font-semibold text-gray-800 mb-3">Warna</h3>
           <div className="flex flex-wrap gap-2">
-            {product.model_list.map((color) => (
-              <button
-                key={color.color}
-                className={`w-8 h-8 rounded-full border-2 ${
-                  selectedColor === color.color ? 'border-orange-500' : 'border-gray-300'
-                }`}
-                style={{ backgroundColor: color.color }}
-                onClick={() => setSelectedColor(color.color)}
-                title={color.color}
-              />
-            ))}
+            {product.model_list.map((color) => {
+              const colorKey = color.color_code || color.color;
+              return (
+                <button
+                  key={colorKey}
+                  className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-[10px] font-medium p-1 text-center ${
+                    selectedColor === colorKey ? 'border-orange-500' : 'border-gray-300'
+                  }`}
+                  style={{
+                    backgroundColor: color.color_code || '#fff',
+                    color: color.color_code ? 'transparent' : '#000',
+                  }}
+                  onClick={() => setSelectedColor(colorKey)}
+                  title={color.color}
+                >
+                  {!color.color_code && color.color.length > 6 ? (
+                    <span className="truncate">{color.color}</span>
+                  ) : (
+                    !color.color_code && color.color
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -182,10 +229,10 @@ const ProductDetail = () => {
           <h3 className="text-base font-semibold text-gray-800 mb-3">Ukuran</h3>
           <div className="flex flex-wrap gap-2">
             {product.model_list
-              .find((m) => m.color === selectedColor)
+              .find((m) => (m.color_code || m.color) === selectedColor)
               ?.size_list?.map((size) => (
                 <button
-                  key={size.size}
+                  key={size.model_id}
                   className={`px-4 py-2 rounded-md border-2 text-sm font-medium ${
                     selectedSize === size.size
                       ? 'border-orange-500 bg-orange-500 text-white'
@@ -199,12 +246,12 @@ const ProductDetail = () => {
           </div>
         </div>
       )}
-      {/* Product Details */}
+
+      {/* Product Description */}
       <div className="p-4 sm:p-6 bg-white shadow-md mb-4">
         <h1 className="text-xl font-semibold text-gray-800 mb-1">{product.item_name}</h1>
         {product.brand && <p className="text-sm text-gray-600 mb-2">{product.brand}</p>}
 
-        {/* Description */}
         {product.description && <p className="text-sm text-gray-700 mb-3">{product.description}</p>}
 
         {product.reviews && product.reviews.length > 0 && (

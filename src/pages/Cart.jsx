@@ -106,9 +106,12 @@ const Cart = () => {
 
         <div className="px-6 pb-6">
           <Link
-            to="/checkout"
-            className="flex items-center justify-center w-full text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 hover:opacity-90"
-            style={{ backgroundColor: COLORS.primary }}
+            to={cartItems.length > 0 ? '/checkout' : '#'}
+            state={{ product: cartItems, subtotal }}
+            className={`flex items-center justify-center w-full text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 ${
+              cartItems.length > 0 ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
+            }`}
+            style={{ backgroundColor: cartItems.length > 0 ? COLORS.primary : '#9CA3AF' }} // abu
           >
             CHECKOUT SEKARANG
           </Link>

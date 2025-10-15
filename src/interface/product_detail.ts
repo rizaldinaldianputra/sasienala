@@ -12,6 +12,7 @@ export interface DetailProduct {
 
 export interface ProductModel {
   color: string;
+  color_code: string;
   image: string;
   size_list: ProductModelSize[];
 }

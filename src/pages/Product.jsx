@@ -134,11 +134,6 @@ const Product = () => {
         )}
 
         {/* Error Message */}
-        {error && (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-red-500 text-center">{error}</p>
-          </div>
-        )}
 
         {/* Product Grid */}
         {!loading && !error && (

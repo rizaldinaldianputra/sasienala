@@ -3,6 +3,7 @@ import { FiFilter, FiGrid, FiHeart, FiList, FiX } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
+import { COLORS } from '../constants/colors'; // sesuaikan path sesuai lokasi file COLORS
 import { useProducts } from '../hook/useProduct';
 import { productService } from '../service/product_service';
 
@@ -13,14 +14,7 @@ const Product = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [localProducts, setLocalProducts] = useState([]);
 
-  const {
-    data,
-    loading,
-    error,
-    searchProduct,
-    refetch,
-    fetchProductsByCategory: fetchByCategory,
-  } = useProducts();
+  const { data, loading, error, searchProduct, refetch, fetchProductsByCategory } = useProducts();
 
   // ambil kategori produk
   useEffect(() => {
@@ -60,13 +54,10 @@ const Product = () => {
       await refetch();
     } else {
       setSelectedCategory(categoryId);
-      const res = await fetchByCategory(categoryId); // harus mengembalikan object
-      const productList = res?.products ?? []; // ambil array products
-      setLocalProducts(productList);
+      const res = await fetchProductsByCategory(categoryId);
+      setLocalProducts(res?.products ?? []);
     }
   };
-  console.log('selectedCategory', selectedCategory);
-  console.log('localProducts', localProducts);
 
   // normalisasi productList
   const productList = selectedCategory ? localProducts : data?.data ?? [];
@@ -112,17 +103,20 @@ const Product = () => {
         {/* Category Tabs */}
         <div className="flex space-x-3 overflow-x-auto mb-4 pb-2 scrollbar-hide">
           {categories.map((cat) => (
-            <button
+            <div
               key={cat.category_id}
               onClick={() => handleCategorySelect(cat.category_id)}
-              className={`px-4 py-2 text-sm rounded-full whitespace-nowrap ${
-                selectedCategory === cat.category_id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700'
-              }`}
+              className="cursor-pointer px-4 py-2 text-md whitespace-nowrap border-b-2"
+              style={{
+                color: selectedCategory === cat.category_id ? COLORS.primary : '#374151',
+                borderBottom:
+                  selectedCategory === cat.category_id
+                    ? `2px solid ${COLORS.primary}`
+                    : '2px solid transparent',
+              }}
             >
               {cat.display_category_name}
-            </button>
+            </div>
           ))}
         </div>
 
@@ -134,6 +128,7 @@ const Product = () => {
         )}
 
         {/* Error Message */}
+        {!loading && error && <div className="text-center text-red-500 text-sm my-4">{error}</div>}
 
         {/* Product Grid */}
         {!loading && !error && (
@@ -154,7 +149,7 @@ const Product = () => {
                 </button>
                 <div className="mt-2">
                   <p className="text-sm text-gray-700">{item.item_name}</p>
-                  <p className="text-orange-600 font-semibold text-sm">
+                  <p className="font-semibold text-sm" style={{ color: COLORS.primary }}>
                     Rp.{item.price?.toLocaleString('id-ID')}
                   </p>
                   <p className="text-xs text-gray-500">⭐ {item.rating ?? 0} Ratings</p>

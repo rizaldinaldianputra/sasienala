@@ -20,6 +20,7 @@ export const useProducts = (autoFetchAll = true) => {
       setLoading(true);
       const res = await productService.getAllProduct();
       setData(res);
+      setError(null);
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat mengambil produk');
     } finally {
@@ -62,12 +63,13 @@ export const useProducts = (autoFetchAll = true) => {
     try {
       setLoading(true);
       const res = await productService.getAllProductByCategory(categoryId);
-      // normalisasi semua products dari category
-      const productsArray = res || [];
+      const productsArray = res || []; // API mengembalikan array langsung
       setData({ data: productsArray, count: productsArray.length });
       setError(null);
+      return productsArray; // <- return agar bisa langsung dipakai di komponen
     } catch (err) {
       setError('Gagal mengambil produk berdasarkan kategori');
+      return [];
     } finally {
       setLoading(false);
     }

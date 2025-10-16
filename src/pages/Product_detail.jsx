@@ -233,9 +233,9 @@ const ProductDetail = () => {
               ?.size_list?.map((size) => (
                 <button
                   key={size.model_id}
-                  className={`px-4 py-2 rounded-md border-2 text-sm font-medium ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium border-2 ${
                     selectedSize === size.size
-                      ? 'border-orange-500 bg-orange-500 text-white'
+                      ? 'border-black bg-black text-white'
                       : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-100'
                   }`}
                   onClick={() => setSelectedSize(size.size)}

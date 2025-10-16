@@ -3,11 +3,14 @@ import { useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
 import { COLORS } from '../constants/colors'; // pastikan path sesuai
+import { useCart } from '../hook/useCart';
 import { useChatBot } from '../hook/useChat';
+import { getUserId } from '../session/session'; // pastikan path
 
 const Chat = ({ userId }) => {
   const { chats, sendMessage, loading } = useChatBot(userId);
   const [input, setInput] = useState('');
+  const { addCartItem } = useCart();
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -15,10 +18,26 @@ const Chat = ({ userId }) => {
     setInput('');
   };
 
+  const handleAddToCart = async (productId, sizeId) => {
+    if (!productId || !sizeId) return;
+
+    const userId = getUserId();
+    if (!userId) return;
+
+    const result = await addCartItem(userId, productId, sizeId, 1);
+    alert(result.message);
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans pb-20">
       <Header />
-
+      {/* Banner */}
+      <div className="relative w-full max-w-3xl mx-auto my-6">
+        <img src="/home.png" alt="October Collection" className="w-full rounded-lg object-cover" />
+        <div className="absolute bottom-4 left-4 text-white">
+          <h2 className="text-2xl font-semibold">October Collection</h2>
+        </div>
+      </div>
       <div className="px-4 text-center my-6">
         <p className="text-gray-600">
           HAI RINA 💕, WELCOME TO SASIENALA!
@@ -35,9 +54,9 @@ const Chat = ({ userId }) => {
             <div className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={`px-4 py-2 rounded-lg max-w-xs break-words ${
-                  chat.role === 'user' ? 'text-white' : 'bg-gray-100 text-gray-900'
+                  chat.role === 'user' ? 'text-black' : 'bg-gray-100 text-gray-900'
                 }`}
-                style={chat.role === 'user' ? { backgroundColor: COLORS.primary } : {}}
+                style={chat.role === 'user' ? { backgroundColor: COLORS.secondary } : {}}
               >
                 {chat.content}
               </div>
@@ -100,7 +119,10 @@ const Chat = ({ userId }) => {
                         <span className="text-sm text-gray-500 ml-2">sisa {r.payload.stock}</span>
                       </div>
 
-                      <button className="bg-orange-500 text-white w-full py-2 rounded mt-2 hover:bg-orange-600">
+                      <button
+                        onClick={() => handleAddToCart(r.payload.item_id, r.payload.size_id)}
+                        className="bg-orange-500 text-white w-full py-2 rounded mt-2 hover:bg-orange-600"
+                      >
                         + Tambah ke Keranjang
                       </button>
                     </div>

@@ -15,18 +15,18 @@ const Checkout = () => {
   }, []);
 
   const [promoCode, setPromoCode] = useState('');
-  const [selectedCourier, setSelectedCourier] = useState(null); // simpan objek kurir
+  const [selectedCourier, setSelectedCourier] = useState(null);
+  const [payload, setPayload] = useState(null);
+  const [payloadCheck, setPayloadCheck] = useState(null);
+  const [payloadCheckout, setPayloadCheckout] = useState(null);
+  const [loadingPayment, setLoadingPayment] = useState(false); // state untuk full-screen loading
 
   const subTotalPesanan = product.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const voucherPromo = 10000;
   const promoNewMember = 5000;
-
-  // Total weight dummy untuk payload
   const totalWeight = product.reduce((acc, item) => acc + (item.weight || 0) * item.quantity, 0);
-
-  const [payload, setPayload] = useState(null);
-  const [payloadCheck, setPayloadCheck] = useState(null);
-  const [payloadCheckout, setPayloadCheckout] = useState(null);
+  const subTotalPengiriman = selectedCourier ? selectedCourier.cost : 0;
+  const totalPembayaran = subTotalPesanan + subTotalPengiriman - voucherPromo - promoNewMember;
 
   useEffect(() => {
     if (address && product.length > 0) {
@@ -62,7 +62,6 @@ const Checkout = () => {
         courier_name: selectedCourier ? selectedCourier.courier_name : '',
         courier_service: selectedCourier ? selectedCourier.courier_code : '',
         shipping_cost: selectedCourier ? selectedCourier.cost : 0,
-        // vouchers: [],
       });
     }
   }, [address, product, totalWeight, selectedCourier]);
@@ -70,16 +69,72 @@ const Checkout = () => {
   const {
     couriers,
     checkoutValidate,
-    validateMessage,
     checkoutFinal,
+    confirmPayment,
     loading: courierLoading,
   } = useCheckout(payload, payloadCheck, payloadCheckout);
 
-  const subTotalPengiriman = selectedCourier ? selectedCourier.cost : 0;
-  const totalPembayaran = subTotalPesanan + subTotalPengiriman - voucherPromo - promoNewMember;
-
   const handleAddShippingAddress = () => alert('Fungsi untuk menambahkan alamat pengiriman');
   const handleApplyPromoCode = () => alert(`Kode promo ${promoCode} diterapkan!`);
+
+  const handleCheckout = async () => {
+    try {
+      const res = await checkoutValidate();
+      if (res?.success === false && res?.message) {
+        alert(res.message);
+        return;
+      }
+
+      const finalRes = await checkoutFinal();
+      if (!finalRes?.success) {
+        alert('Checkout gagal, silakan coba lagi.');
+        return;
+      }
+
+      const snapToken = finalRes.snap_token;
+      if (!snapToken) {
+        alert('Snap token tidak tersedia!');
+        return;
+      }
+
+      setLoadingPayment(true); // tampilkan full-screen loading putih
+
+      window.snap.pay(snapToken, {
+        onSuccess: async (result) => {
+          console.log('Pembayaran berhasil:', result);
+          try {
+            const payloadConfirm = {
+              order_id: finalRes.order.id,
+              snap_response: result,
+            };
+            const confirmRes = await confirmPayment(payloadConfirm);
+            alert(confirmRes?.message || 'Pembayaran berhasil!');
+            navigate('/transaksi');
+          } catch (err) {
+            console.error('Error confirm payment:', err);
+            alert('Terjadi kesalahan saat konfirmasi pembayaran.');
+          } finally {
+            setLoadingPayment(false);
+          }
+        },
+        onPending: (result) => {
+          console.log('Pembayaran pending:', result);
+          setLoadingPayment(false);
+        },
+        onError: (result) => {
+          console.log('Pembayaran gagal:', result);
+          setLoadingPayment(false);
+        },
+        onClose: () => {
+          alert('Anda menutup popup pembayaran.');
+          setLoadingPayment(false);
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan pada proses checkout.');
+    }
+  };
 
   return (
     <div className="font-sans max-w-md mx-auto border border-gray-200 rounded-lg overflow-hidden bg-white pb-20 relative">
@@ -156,8 +211,6 @@ const Checkout = () => {
             value={selectedCourier?.service || ''}
             onChange={(e) => {
               const courier = couriers.find((c) => c.service === e.target.value);
-              console.log('ini courier', +e);
-
               setSelectedCourier(courier || null);
             }}
             disabled={!payload}
@@ -212,54 +265,20 @@ const Checkout = () => {
         </div>
       </section>
 
+      {/* Spinner Full-Screen */}
+      {loadingPayment && (
+        <div className="fixed inset-0 bg-white flex justify-center items-center z-50">
+          <div className="loader border-4 border-gray-300 border-t-orange-500 rounded-full w-16 h-16 animate-spin"></div>
+        </div>
+      )}
+
       {/* Checkout Button */}
       <footer className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto p-4 bg-white border-t border-gray-100 shadow-lg">
         <button
-          onClick={async () => {
-            try {
-              const res = await checkoutValidate();
-              if (res?.success === false && res?.message) {
-                alert(res.message);
-                return;
-              }
-
-              const finalRes = await checkoutFinal();
-              console.log('ini response', finalRes);
-              if (finalRes?.success) {
-                // Ambil snap token dari response
-                const snapToken = finalRes.snap_token;
-
-                console.log(snapToken);
-                if (!snapToken) {
-                  alert('Snap token tidak tersedia!');
-                  return;
-                }
-
-                // Panggil Snap Midtrans
-                window.snap.pay(snapToken, {
-                  onSuccess: function (result) {
-                    console.log('Pembayaran berhasil:', result);
-                  },
-                  onPending: function (result) {
-                    console.log('Pembayaran pending:', result);
-                  },
-                  onError: function (result) {
-                    console.log('Pembayaran gagal:', result);
-                  },
-                  onClose: function () {
-                    alert('Anda menutup popup pembayaran.');
-                  },
-                });
-              } else {
-                alert('Checkout gagal, silakan coba lagi.');
-              }
-            } catch (err) {
-              console.error(err);
-              alert('Terjadi kesalahan pada proses checkout.');
-            }
-          }}
+          onClick={handleCheckout}
           style={{ backgroundColor: COLORS.primary }}
           className="w-full flex items-center justify-center px-4 py-2 text-white rounded hover:opacity-90"
+          disabled={loadingPayment}
         >
           <img src="/bagcheckout.svg" alt="Bag" className="w-6 h-6 mr-2" />
           CHECKOUT SEKARANG

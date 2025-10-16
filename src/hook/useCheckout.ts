@@ -5,6 +5,7 @@ import {
   CheckoutValidatePayload,
   CourierOption,
 } from '../interface/checkout';
+import { MidtransPayload, MidtransResponsePayload } from '../interface/midtrans';
 import { checkoutService } from '../service/checkout_service';
 
 export const useCheckout = (
@@ -17,8 +18,11 @@ export const useCheckout = (
   const [error, setError] = useState<string | null>(null);
   const [validateMessage, setValidateMessage] = useState<string | null>(null);
   const [checkoutResult, setCheckoutResult] = useState<CheckoutPaymentResponse | null>(null);
+  const [confirmResult, setConfirmResult] = useState<MidtransResponsePayload | null>(null);
 
-  // Ambil opsi pengiriman
+  /** ==========================
+   * Fetch shipping options
+   * ========================== */
   const fetchShippingOptions = async () => {
     if (!payload) return;
     try {
@@ -26,39 +30,39 @@ export const useCheckout = (
       const res = await checkoutService.getShippingOptions(payload);
       setCouriers(res.options.couriers);
     } catch (err: any) {
-      setError(err.message || 'Gagal mengambil opsi pengiriman');
+      setError(err?.message || 'Gagal mengambil opsi pengiriman');
     } finally {
       setLoading(false);
     }
   };
 
-  // Validasi checkout
+  /** ==========================
+   * Validate checkout
+   * ========================== */
   const checkoutValidate = async () => {
     if (!payloadCheck) return;
     try {
       setLoading(true);
       const res = await checkoutService.checkoutValidate(payloadCheck);
-      if (!res.success) {
-        setValidateMessage(res.message);
-      } else {
-        setValidateMessage(null);
-      }
+      if (!res.success) setValidateMessage(res.message);
+      else setValidateMessage(null);
       return res;
     } catch (err: any) {
-      setError(err.message || 'Gagal validasi checkout');
+      setError(err?.message || 'Gagal validasi checkout');
     } finally {
       setLoading(false);
     }
   };
 
-  // Checkout final
+  /** ==========================
+   * Checkout final
+   * ========================== */
   const checkoutFinal = async (): Promise<CheckoutPaymentResponse | undefined> => {
     if (!payloadCheckout) return;
     try {
       setLoading(true);
       const res: CheckoutPaymentResponse = await checkoutService.checkoutFinal(payloadCheckout);
       setCheckoutResult(res);
-
       return res;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Gagal melakukan checkout';
@@ -68,7 +72,29 @@ export const useCheckout = (
     }
   };
 
-  // Fetch kurir jika payload berubah
+  /** ==========================
+   * Confirm payment Midtrans
+   * ========================== */
+  const confirmPayment = async (
+    body: MidtransPayload,
+  ): Promise<MidtransResponsePayload | undefined> => {
+    if (!body) return;
+    try {
+      setLoading(true);
+      const res: MidtransResponsePayload = await checkoutService.confirmPayment(body);
+      setConfirmResult(res);
+      return res;
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Gagal konfirmasi pembayaran';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /** ==========================
+   * Fetch kurir jika payload berubah
+   * ========================== */
   useEffect(() => {
     if (payload) fetchShippingOptions();
   }, [payload]);
@@ -79,8 +105,10 @@ export const useCheckout = (
     error,
     validateMessage,
     checkoutResult,
+    confirmResult,
     fetchShippingOptions,
     checkoutValidate,
     checkoutFinal,
+    confirmPayment,
   };
 };

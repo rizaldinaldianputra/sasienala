@@ -1,20 +1,24 @@
 // src/components/Header.jsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("WOMEN");
+  const [activeTab, setActiveTab] = useState('WOMEN');
   const navigate = useNavigate();
 
   const menuItems = {
-    WOMEN: ["New", "Apparel", "Bag", "Shoes", "Beauty"],
-    MAN: ["New", "Apparel", "Bag", "Shoes", "Accessories"],
-    KIDS: ["New", "Apparel", "Toys", "Shoes", "School Supplies"],
+    WOMEN: ['New', 'Apparel', 'Bag', 'Shoes', 'Beauty'],
+    MAN: ['New', 'Apparel', 'Bag', 'Shoes', 'Accessories'],
+    KIDS: ['New', 'Apparel', 'Toys', 'Shoes', 'School Supplies'],
   };
 
   const handleCartClick = () => {
-    navigate("/cart");
+    navigate('/cart');
+  };
+
+  const handleCartSearch = () => {
+    navigate('/product');
   };
 
   return (
@@ -22,16 +26,8 @@ export default function Header() {
       {/* Header sticky di atas */}
       <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-2">
-          <button
-            className="text-gray-700"
-            onClick={() => setIsOpen(true)}
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+          <button className="text-gray-700" onClick={() => setIsOpen(true)}>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -44,7 +40,10 @@ export default function Header() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <img src="/search.svg" alt="Search" className="h-8 cursor-pointer" />
+          <div onClick={handleCartSearch} className="cursor-pointer">
+            <img src="/search.svg" alt="Search" className="h-8 cursor-pointer" />
+          </div>
+
           <div onClick={handleCartClick} className="cursor-pointer">
             <img src="/bag.svg" alt="Bag" className="h-8" />
           </div>
@@ -54,21 +53,20 @@ export default function Header() {
       {/* Drawer */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-black opacity-30"
-            onClick={() => setIsOpen(false)}
-          ></div>
+          <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)}></div>
           <div className="relative w-72 bg-white h-full shadow-xl p-4 overflow-y-auto">
-            <button className="mb-4 text-gray-700" onClick={() => setIsOpen(false)}>✕</button>
+            <button className="mb-4 text-gray-700" onClick={() => setIsOpen(false)}>
+              ✕
+            </button>
 
             <div className="flex space-x-4 mb-4 border-b">
-              {["WOMEN", "MAN", "KIDS"].map((tab) => (
+              {['WOMEN', 'MAN', 'KIDS'].map((tab) => (
                 <button
                   key={tab}
                   className={`pb-1 font-semibold ${
                     activeTab === tab
-                      ? "border-b-2 border-orange-400 text-orange-400"
-                      : "text-gray-400"
+                      ? 'border-b-2 border-orange-400 text-orange-400'
+                      : 'text-gray-400'
                   }`}
                   onClick={() => setActiveTab(tab)}
                 >

@@ -18,20 +18,17 @@ const api = createApi();
 api.interceptors.request.use(async (config) => {
   const token = await getToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  console.log('REQUEST:', config.url, config.data);
   return config;
 });
 
 // interceptor response
 api.interceptors.response.use(
   (res) => {
-    console.log('RESPONSE:', res.config.url, res.data);
     return res;
   },
   (error: AxiosError<any>) => {
     const backendMessage =
       (error.response?.data as any)?.message || error.message || 'Terjadi kesalahan';
-    console.error('❌ API ERROR:', backendMessage);
     return Promise.reject(new Error(backendMessage));
   },
 );

@@ -70,9 +70,7 @@ const Transaksi = () => {
 
       {/* Loading Spinner Overlay */}
       {showLoading && (
-        <div className="absolute inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
       )}
     </div>
   );

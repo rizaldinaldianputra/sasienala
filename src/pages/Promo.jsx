@@ -4,7 +4,20 @@ import Header from '../components/Header';
 import useVoucher from '../hook/useVoucher';
 
 const Promo = () => {
-  const { vouchers, loading, error } = useVoucher();
+  const { vouchers, loading, error, allvouchers, redeemVoucher } = useVoucher();
+  const handleRedeem = async (code) => {
+    try {
+      const res = await redeemVoucher(code);
+      console.log('Voucher berhasil diklaim:', res);
+      alert('Voucher berhasil diklaim!');
+      // kalau mau, bisa update UI lokal tanpa overwrite list allvouchers
+      // misal menandai voucher sudah diklaim
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Terjadi kesalahan saat klaim voucher');
+      // tidak ada perubahan state, list voucher tetap sama
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-20">
@@ -40,15 +53,13 @@ const Promo = () => {
 
             {loading && <p className="text-gray-500 text-sm">Memuat voucher...</p>}
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-
             {!loading && !error && vouchers.length === 0 && (
               <p className="text-gray-500 text-sm">Belum ada voucher tersedia</p>
             )}
 
             {!loading &&
               !error &&
-              vouchers.map((voucher) => (
+              allvouchers.map((voucher) => (
                 <div
                   key={voucher.id}
                   className="bg-orange-100 p-3 rounded-lg mb-2 flex justify-between items-center text-sm"
@@ -69,11 +80,14 @@ const Promo = () => {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">{voucher.voucher.code}</p>
-                      <p className="text-gray-600">{voucher.voucher.desc}</p>
+                      <p className="font-semibold text-gray-800">{voucher.code}</p>
+                      <p className="text-gray-600">{voucher.desc}</p>
                     </div>
                   </div>
-                  <button className="bg-white text-orange-600 font-medium py-1 px-3 rounded-md shadow-sm hover:bg-gray-50">
+                  <button
+                    onClick={() => handleRedeem(voucher.code)} // ✅ baru dijalankan saat klik
+                    className="bg-white text-orange-600 font-medium py-1 px-3 rounded-md shadow-sm hover:bg-gray-50"
+                  >
                     Klaim
                   </button>
                 </div>

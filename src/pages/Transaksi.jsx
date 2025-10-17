@@ -2,11 +2,13 @@
 import { useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
+import { useCheckout } from '../hook/useCheckout';
 import { useOrders } from '../hook/useOrder';
 
 const Transaksi = () => {
   const [activeTab, setActiveTab] = useState('Semua Status');
-  const { orders, loading, error } = useOrders();
+  const [showLoading, setShowLoading] = useState(false);
+  const { orders, loading, error, refetch } = useOrders();
 
   // Filter transaksi berdasarkan tab aktif
   const filteredTransactions = orders.filter((tx) => {
@@ -15,27 +17,33 @@ const Transaksi = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans pb-20">
+    <div className="min-h-screen bg-gray-50 font-sans pb-20 relative">
       <Header />
 
       <div className="flex-grow">
         {/* Tab Navigation */}
         <div className="bg-white shadow-sm overflow-x-auto flex border-b border-gray-200">
-          {['Semua Status', 'Sedang Diproses', 'Sedang Dikirim', 'Selesai', 'Dibatalkan'].map(
-            (tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-shrink-0 px-4 py-3 text-sm font-medium ${
-                  activeTab === tab
-                    ? 'text-orange-600 border-b-2 border-orange-600'
-                    : 'text-gray-600 hover:text-gray-800'
-                }`}
-              >
-                {tab}
-              </button>
-            ),
-          )}
+          {['Semua Status', 'pending', 'shipped', 'completed', 'canceled'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-shrink-0 px-4 py-3 text-sm font-medium ${
+                activeTab === tab
+                  ? 'text-orange-600 border-b-2 border-orange-600'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              {tab === 'pending'
+                ? 'Sedang Diproses'
+                : tab === 'shipped'
+                ? 'Sedang Dikirim'
+                : tab === 'completed'
+                ? 'Selesai'
+                : tab === 'canceled'
+                ? 'Dibatalkan'
+                : 'Semua Status'}
+            </button>
+          ))}
         </div>
 
         {/* Transaction List */}
@@ -48,36 +56,88 @@ const Transaksi = () => {
           {!loading &&
             !error &&
             filteredTransactions.map((transaction) => (
-              <TransactionCard key={transaction.id} transaction={transaction} />
+              <TransactionCard
+                key={transaction.id}
+                transaction={transaction}
+                refetch={refetch}
+                setShowLoading={setShowLoading}
+              />
             ))}
         </div>
       </div>
 
       <BottomNav />
+
+      {/* Loading Spinner Overlay */}
+      {showLoading && (
+        <div className="absolute inset-0 bg-white bg-opacity-80 flex justify-center items-center z-50">
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
     </div>
   );
 };
 
 // Komponen Pembantu untuk Kartu Transaksi
-const TransactionCard = ({ transaction }) => {
-  const { status, created_at, items, final_total } = transaction;
-
-  const getActionButtonClass = (statusText) => {
-    if (statusText === 'pending') return 'bg-orange-500 text-white hover:bg-orange-600';
-    if (statusText === 'shipped') return 'bg-orange-500 text-white hover:bg-orange-600';
-    if (statusText === 'unpaid') return 'bg-gray-200 text-gray-800 hover:bg-gray-300';
-    return 'bg-gray-200 text-gray-800 hover:bg-gray-300';
-  };
+const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
+  const { confirmPayment } = useCheckout();
+  const {
+    status,
+    payment_status,
+    created_at,
+    items,
+    final_total,
+    snap_token,
+    id: order_id,
+  } = transaction;
 
   const getStatusColor = (statusText) => {
     if (statusText === 'pending') return 'text-orange-600';
     if (statusText === 'shipped') return 'text-orange-600';
-    if (statusText === 'Selesai' || statusText === 'paid') return 'text-green-600';
+    if (statusText === 'completed' || statusText === 'paid') return 'text-green-600';
+    if (statusText === 'canceled') return 'text-red-500';
     return 'text-gray-600';
   };
 
-  const actionButton =
-    status === 'pending' ? 'Lacak' : status === 'shipped' ? 'Lacak' : 'Beli Lagi';
+  const handleBayarSekarang = () => {
+    if (!snap_token) {
+      alert('Snap token tidak tersedia!');
+      return;
+    }
+
+    window.snap.pay(snap_token, {
+      onSuccess: async (result) => {
+        setShowLoading(true); // tampilkan spinner
+        console.log('Pembayaran berhasil:', result);
+        const payloadConfirm = {
+          order_id: order_id,
+          snap_response: result,
+        };
+        try {
+          const confirmRes = await confirmPayment(payloadConfirm);
+          alert(confirmRes?.message || 'Pembayaran berhasil!');
+
+          // REFRESH LIST TRANSAKSI
+          if (refetch) await refetch();
+        } catch (err) {
+          console.error('Error confirm payment:', err);
+          alert('Terjadi kesalahan saat konfirmasi pembayaran.');
+        } finally {
+          setShowLoading(false); // sembunyikan spinner
+        }
+      },
+      onPending: (result) => {
+        console.log('Pembayaran pending:', result);
+      },
+      onError: (result) => {
+        console.log('Pembayaran gagal:', result);
+        alert('Pembayaran gagal, silakan coba lagi.');
+      },
+      onClose: () => {
+        alert('Anda menutup popup pembayaran.');
+      },
+    });
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
@@ -133,11 +193,25 @@ const TransactionCard = ({ transaction }) => {
             Rp.{final_total?.toLocaleString('id-ID')}
           </p>
         </div>
-        <button
-          className={`py-2 px-4 rounded-md text-sm font-medium ${getActionButtonClass(status)}`}
-        >
-          {actionButton}
-        </button>
+
+        <div className="flex space-x-2">
+          {/* Tombol Bayar Sekarang hanya untuk unpaid dan status pending */}
+          {payment_status === 'unpaid' && status === 'pending' && (
+            <button
+              onClick={handleBayarSekarang}
+              className="py-2 px-4 rounded-md bg-orange-500 text-white text-sm font-medium hover:bg-orange-600"
+            >
+              Bayar Sekarang
+            </button>
+          )}
+
+          {/* Tombol Rating hanya untuk completed */}
+          {status === 'completed' && (
+            <button className="py-2 px-4 rounded-md bg-green-500 text-white text-sm font-medium hover:bg-green-600">
+              Rating
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

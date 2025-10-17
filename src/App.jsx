@@ -7,7 +7,6 @@ import Cart from './pages/Cart';
 import Chat from './pages/Chat';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
-import PaymentMethod from './pages/Payment';
 import Product from './pages/Product';
 import ProductDetail from './pages/Product_detail';
 import Promo from './pages/Promo';
@@ -40,7 +39,6 @@ export default function App() {
           <Route path="/product" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/payment" element={<PaymentMethod />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/promo" element={<Promo />} />
           <Route path="/transaksi" element={<Transaksi />} />

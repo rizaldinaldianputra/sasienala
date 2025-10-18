@@ -154,6 +154,7 @@ const Account = () => {
               text="Tukar Point"
             />
             <ProfileMenuItem
+              onClick={() => navigate('/voucher')}
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

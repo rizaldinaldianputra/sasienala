@@ -15,6 +15,7 @@ import ProfilePage from './pages/Profile_detail';
 import Promo from './pages/Promo';
 import Transaksi from './pages/Transaksi';
 import TransaksiDetail from './pages/Transaksi_detail';
+import VoucherPage from './pages/Voucher';
 
 export default function App() {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/address" element={<AddressManager />} />
           <Route path="/address/form" element={<AddressForm />} />
+          <Route path="/voucher" element={<VoucherPage />} />
 
           <Route path="/account" element={<Account />} />
         </Routes>

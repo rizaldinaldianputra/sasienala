@@ -1,11 +1,18 @@
 // src/pages/Account.jsx
 import Cookies from 'js-cookie';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav'; // Asumsi Anda memiliki komponen BottomNav
 import Header from '../components/Header'; // Asumsi Anda memiliki komponen Header
+import { useUser } from '../hook/useUser';
 
 const Account = () => {
-  const navigate = useNavigate(); // <--- tambahkan ini
+  const navigate = useNavigate();
+  const { user, loading, error, fetchUser } = useUser();
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   const handleLogout = () => {
     // hapus token
@@ -16,8 +23,6 @@ const Account = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-20">
-      {' '}
-      {/* pb-20 untuk BottomNav */}
       <Header />
       {/* --- BAGIAN BODY PROFIL DIMULAI DI SINI --- */}
       <div className="p-4 sm:p-6 flex justify-center flex-grow">
@@ -25,12 +30,12 @@ const Account = () => {
           {/* User Info Section */}
           <div className="flex flex-col items-center mb-8">
             <img
-              src="https://picsum.photos/seed/picsum/200/300" // Ganti dengan URL gambar profil Anda
+              src={user?.profile?.profile_picture || 'https://picsum.photos/seed/picsum/200/300'}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover mb-3 border-2 border-gray-200"
             />
-            <h2 className="text-lg font-semibold text-gray-800">Anata Setyarini</h2>
-            <p className="text-sm text-gray-600">anatasyrini@gmail.com</p>
+            <h2 className="text-lg font-semibold text-gray-800">{user?.username || 'User'}</h2>
+            <p className="text-sm text-gray-600">{user?.email || '-'}</p>
           </div>
 
           {/* PROFILE Menu */}
@@ -39,6 +44,7 @@ const Account = () => {
               PROFILE
             </h3>
             <ProfileMenuItem
+              onClick={() => navigate('/profile')}
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -58,6 +64,7 @@ const Account = () => {
               text="Ubah Profile"
             />
             <ProfileMenuItem
+              onClick={() => navigate('/address')}
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -240,15 +247,17 @@ const Account = () => {
           </button>
         </div>
       </div>
-      {/* --- BAGIAN BODY PROFIL BERAKHIR DI SINI --- */}
       <BottomNav />
     </div>
   );
 };
 
 // Komponen Pembantu untuk Item Menu Profil
-const ProfileMenuItem = ({ icon, text }) => (
-  <div className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer transition-colors duration-150 text-sm">
+const ProfileMenuItem = ({ icon, text, onClick }) => (
+  <div
+    onClick={onClick}
+    className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer transition-colors duration-150 text-sm"
+  >
     {icon}
     <span>{text}</span>
   </div>

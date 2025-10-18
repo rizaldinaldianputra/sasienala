@@ -1,5 +1,6 @@
 // src/pages/TransactionHistoryPage.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ tambahkan ini di atas
 import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
 import { useCheckout } from '../hook/useCheckout';
@@ -78,6 +79,8 @@ const Transaksi = () => {
 
 // Komponen Pembantu untuk Kartu Transaksi
 const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
+  const navigate = useNavigate(); // ✅ inisialisasi navigate
+
   const { confirmPayment } = useCheckout();
   const {
     status,
@@ -170,7 +173,11 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
 
       {/* Item Transaksi */}
       {items.map((item, index) => (
-        <div key={index} className="flex items-center mb-3">
+        <div
+          onClick={() => navigate(`/transaksidetail/${item.id}`)}
+          key={index}
+          className="flex items-center mb-3"
+        >
           <img
             src={item.image_url}
             alt={item.product_name}

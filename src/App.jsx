@@ -3,14 +3,18 @@ import { useEffect, useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 
 import Account from './pages/Account';
+import AddressManager from './pages/Address';
+import AddressForm from './pages/Address_form';
 import Cart from './pages/Cart';
 import Chat from './pages/Chat';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Product from './pages/Product';
 import ProductDetail from './pages/Product_detail';
+import ProfilePage from './pages/Profile_detail';
 import Promo from './pages/Promo';
 import Transaksi from './pages/Transaksi';
+import TransaksiDetail from './pages/Transaksi_detail';
 
 export default function App() {
   const navigate = useNavigate();
@@ -42,6 +46,11 @@ export default function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/promo" element={<Promo />} />
           <Route path="/transaksi" element={<Transaksi />} />
+          <Route path="/transaksidetail/:id" element={<TransaksiDetail />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/address" element={<AddressManager />} />
+          <Route path="/address/form" element={<AddressForm />} />
+
           <Route path="/account" element={<Account />} />
         </Routes>
       </main>

@@ -12,7 +12,6 @@ const AddressForm = ({ onSaved }) => {
   const existingAddress = location.state?.existingAddress || null;
 
   const [form, setForm] = useState({
-    id: null,
     receiver_name: '',
     phone: '',
     province_id: null,
@@ -20,9 +19,12 @@ const AddressForm = ({ onSaved }) => {
     district_id: null,
     subdistrict_id: null,
     full_address: '',
+    other: '',
     postal_code: '',
-    tags: '',
-    is_primary: false,
+    latitude: -6.9555339,
+    longitude: 107.6438528,
+    tags: 'home',
+    is_primary: 1,
   });
 
   const [provinces, setProvinces] = useState([]);
@@ -41,13 +43,13 @@ const AddressForm = ({ onSaved }) => {
     }
   }, [existingAddress]);
 
-  // ===== Dropdown =====
+  // ========== FETCH DROPDOWN ==========
   const fetchProvinces = async () => {
     try {
       const res = await addressService.getProvince();
       setProvinces(res.data || res);
-    } catch {
-      console.error('Gagal fetch provinsi');
+    } catch (e) {
+      console.error('Gagal fetch provinsi:', e);
     }
   };
 
@@ -55,8 +57,8 @@ const AddressForm = ({ onSaved }) => {
     try {
       const res = await addressService.getCityByProvince(provinceId);
       setCities(res.data || res);
-    } catch {
-      console.error('Gagal fetch kota');
+    } catch (e) {
+      console.error('Gagal fetch kota:', e);
     }
   };
 
@@ -64,8 +66,8 @@ const AddressForm = ({ onSaved }) => {
     try {
       const res = await addressService.getDistrictByCity(cityId);
       setDistricts(res.data || res);
-    } catch {
-      console.error('Gagal fetch kecamatan');
+    } catch (e) {
+      console.error('Gagal fetch kecamatan:', e);
     }
   };
 
@@ -73,12 +75,12 @@ const AddressForm = ({ onSaved }) => {
     try {
       const res = await addressService.getSubdistrictByDistrict(districtId);
       setSubdistricts(res.data || res);
-    } catch {
-      console.error('Gagal fetch kelurahan');
+    } catch (e) {
+      console.error('Gagal fetch kelurahan:', e);
     }
   };
 
-  // ===== Form Handler =====
+  // ========== HANDLE FORM ==========
   const handleChange = (key, value) => {
     const val = ['province_id', 'city_id', 'district_id', 'subdistrict_id'].includes(key)
       ? Number(value)
@@ -90,14 +92,23 @@ const AddressForm = ({ onSaved }) => {
       setCities([]);
       setDistricts([]);
       setSubdistricts([]);
-      setForm((prev) => ({ ...prev, city_id: null, district_id: null, subdistrict_id: null }));
+      setForm((prev) => ({
+        ...prev,
+        city_id: null,
+        district_id: null,
+        subdistrict_id: null,
+      }));
       if (value) fetchCities(Number(value));
     }
 
     if (key === 'city_id') {
       setDistricts([]);
       setSubdistricts([]);
-      setForm((prev) => ({ ...prev, district_id: null, subdistrict_id: null }));
+      setForm((prev) => ({
+        ...prev,
+        district_id: null,
+        subdistrict_id: null,
+      }));
       if (value) fetchDistricts(Number(value));
     }
 
@@ -108,11 +119,30 @@ const AddressForm = ({ onSaved }) => {
     }
   };
 
-  // ===== Save =====
+  // ========== HANDLE SAVE ==========
   const handleSave = async () => {
     try {
       setLoading(true);
-      const payload = { ...form, user_id: getUserId() };
+      const user_id = getUserId();
+
+      const payload = {
+        user_id: Number(user_id),
+        receiver_name: form.receiver_name,
+        phone: form.phone,
+        province_id: Number(form.province_id),
+        city_id: Number(form.city_id),
+        district_id: Number(form.district_id),
+        subdistrict_id: Number(form.subdistrict_id),
+        full_address: form.full_address,
+        other: form.other,
+        postal_code: form.postal_code,
+        latitude: Number(form.latitude),
+        longitude: Number(form.longitude),
+        tags: form.tags,
+        is_primary: form.is_primary ? 1 : 0,
+      };
+
+      console.log('Payload add address:', payload);
 
       if (form.id) {
         await addressService.updateAddress(form.id, payload);
@@ -122,8 +152,9 @@ const AddressForm = ({ onSaved }) => {
 
       alert('Alamat berhasil disimpan');
       if (onSaved) onSaved();
-      navigate(-1); // kembali ke halaman sebelumnya
+      navigate(-1);
     } catch (err) {
+      console.error('Gagal menyimpan alamat:', err);
       alert(err.message || 'Gagal menyimpan alamat');
     } finally {
       setLoading(false);
@@ -142,6 +173,7 @@ const AddressForm = ({ onSaved }) => {
           onChange={(e) => handleChange('receiver_name', e.target.value)}
           className="w-full border rounded p-2"
         />
+
         <input
           type="text"
           placeholder="Telepon"
@@ -149,6 +181,7 @@ const AddressForm = ({ onSaved }) => {
           onChange={(e) => handleChange('phone', e.target.value)}
           className="w-full border rounded p-2"
         />
+
         <select
           value={form.province_id || ''}
           onChange={(e) => handleChange('province_id', e.target.value)}
@@ -161,6 +194,7 @@ const AddressForm = ({ onSaved }) => {
             </option>
           ))}
         </select>
+
         <select
           value={form.city_id || ''}
           onChange={(e) => handleChange('city_id', e.target.value)}
@@ -173,6 +207,7 @@ const AddressForm = ({ onSaved }) => {
             </option>
           ))}
         </select>
+
         <select
           value={form.district_id || ''}
           onChange={(e) => handleChange('district_id', e.target.value)}
@@ -185,6 +220,7 @@ const AddressForm = ({ onSaved }) => {
             </option>
           ))}
         </select>
+
         <select
           value={form.subdistrict_id || ''}
           onChange={(e) => handleChange('subdistrict_id', e.target.value)}
@@ -197,6 +233,7 @@ const AddressForm = ({ onSaved }) => {
             </option>
           ))}
         </select>
+
         <input
           type="text"
           placeholder="Alamat Lengkap"
@@ -204,6 +241,15 @@ const AddressForm = ({ onSaved }) => {
           onChange={(e) => handleChange('full_address', e.target.value)}
           className="w-full border rounded p-2"
         />
+
+        <input
+          type="text"
+          placeholder="Keterangan (Opsional)"
+          value={form.other}
+          onChange={(e) => handleChange('other', e.target.value)}
+          className="w-full border rounded p-2"
+        />
+
         <input
           type="text"
           placeholder="Kode Pos"
@@ -211,21 +257,24 @@ const AddressForm = ({ onSaved }) => {
           onChange={(e) => handleChange('postal_code', e.target.value)}
           className="w-full border rounded p-2"
         />
+
         <input
           type="text"
-          placeholder="Tag"
+          placeholder="Tag (home/work)"
           value={form.tags}
           onChange={(e) => handleChange('tags', e.target.value)}
           className="w-full border rounded p-2"
         />
+
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            checked={form.is_primary}
-            onChange={(e) => handleChange('is_primary', e.target.checked)}
+            checked={!!form.is_primary}
+            onChange={(e) => handleChange('is_primary', e.target.checked ? 1 : 0)}
           />
-          Alamat Utama
+          Jadikan Alamat Utama
         </label>
+
         <button
           onClick={handleSave}
           className="w-full py-2 mt-2 text-white rounded"

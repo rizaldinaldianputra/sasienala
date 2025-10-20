@@ -1,14 +1,10 @@
-# netlify.toml
-
 [build]
   command = "npm run build"
   publish = "dist"
 
 [build.environment]
-  # Pakai Node versi spesifik yang valid di Netlify
-  NODE_VERSION = "20.19.0"
+  NODE_VERSION = "22.20.0"
 
-# Optional: redirect root ke index.html (untuk SPA)
 [[redirects]]
   from = "/*"
   to = "/index.html"

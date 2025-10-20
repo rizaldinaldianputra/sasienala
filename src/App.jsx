@@ -9,6 +9,8 @@ import Cart from './pages/Cart';
 import Chat from './pages/Chat';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
+import MemberShip from './pages/MemberShip';
+import PointRedeem from './pages/Point.';
 import Product from './pages/Product';
 import ProductDetail from './pages/Product_detail';
 import ProfilePage from './pages/Profile_detail';
@@ -38,7 +40,6 @@ export default function App() {
         <Routes>
           {/* jika user tidak punya token baru bisa ke login */}
           <Route path="/login" element={<Login />} />
-
           {/* semua route lainnya */}
           <Route path="/" element={<Chat />} />
           <Route path="/product" element={<Product />} />
@@ -52,7 +53,8 @@ export default function App() {
           <Route path="/address" element={<AddressManager />} />
           <Route path="/address/form" element={<AddressForm />} />
           <Route path="/voucher" element={<VoucherPage />} />
-
+          <Route path="/membership" element={<MemberShip />} />
+          <Route path="/point" element={<PointRedeem />} />
           <Route path="/account" element={<Account />} />
         </Routes>
       </main>

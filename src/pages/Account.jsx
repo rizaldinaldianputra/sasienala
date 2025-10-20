@@ -116,6 +116,7 @@ const Account = () => {
               MEMBERSHIP & LOYALTY
             </h3>
             <ProfileMenuItem
+              onClick={() => navigate('/membership')}
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -135,6 +136,7 @@ const Account = () => {
               text="Lihat Status dan Point Loyalty"
             />
             <ProfileMenuItem
+              onClick={() => navigate('/point')}
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

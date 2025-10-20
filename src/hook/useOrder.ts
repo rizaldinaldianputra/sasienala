@@ -37,9 +37,23 @@ export const useOrders = () => {
     }
   };
 
+  const confirmPayment = async (id: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const order = await orderService.confirmPayment(id);
+      return order;
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch order');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  return { orders, loading, error, refetch: fetchOrders, fetchOrderById };
+  return { orders, loading, error, refetch: fetchOrders, fetchOrderById, confirmPayment };
 };

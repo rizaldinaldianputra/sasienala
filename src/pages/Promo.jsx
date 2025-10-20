@@ -1,21 +1,25 @@
 // src/pages/Home.jsx
+import { useEffect } from 'react';
 import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
 import useVoucher from '../hook/useVoucher';
 
 const Promo = () => {
-  const { vouchers, loading, error, allvouchers, redeemVoucher } = useVoucher();
+  const { loading, error, allVouchers, redeemVoucher, fetchAllVouchers } = useVoucher();
+
+  // Panggil fetchAllVouchers saat komponen mount
+  useEffect(() => {
+    fetchAllVouchers();
+  }, []);
+
   const handleRedeem = async (code) => {
     try {
       const res = await redeemVoucher(code);
       console.log('Voucher berhasil diklaim:', res);
       alert('Voucher berhasil diklaim!');
-      // kalau mau, bisa update UI lokal tanpa overwrite list allvouchers
-      // misal menandai voucher sudah diklaim
     } catch (err) {
       console.error(err);
       alert(err.message || 'Terjadi kesalahan saat klaim voucher');
-      // tidak ada perubahan state, list voucher tetap sama
     }
   };
 
@@ -53,13 +57,13 @@ const Promo = () => {
 
             {loading && <p className="text-gray-500 text-sm">Memuat voucher...</p>}
 
-            {!loading && !error && vouchers.length === 0 && (
+            {!loading && !error && allVouchers.length === 0 && (
               <p className="text-gray-500 text-sm">Belum ada voucher tersedia</p>
             )}
 
             {!loading &&
               !error &&
-              allvouchers.map((voucher) => (
+              allVouchers.map((voucher) => (
                 <div
                   key={voucher.id}
                   className="bg-orange-100 p-3 rounded-lg mb-2 flex justify-between items-center text-sm"

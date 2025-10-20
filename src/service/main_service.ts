@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { BASE_URL } from '../constants/config';
+import { API_KEY, BASE_URL } from '../constants/config';
 import { getToken } from '../session/session';
 
 const createApi = (baseURL: string = BASE_URL) =>
@@ -7,7 +7,7 @@ const createApi = (baseURL: string = BASE_URL) =>
     baseURL,
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': 'secret-key-punya-sasienala-bunnyeee28-super-secret',
+      'x-api-key': API_KEY,
       Accept: 'application/json',
     },
   });

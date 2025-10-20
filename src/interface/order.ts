@@ -30,5 +30,10 @@ export interface Order {
   updated_at: string;
   items: Item[];
 }
+export interface OrderConfirmResponse {
+  message: string;
+  order_id: number;
+  status: 'confirmed' | 'pending' | 'canceled' | string;
+}
 
 export type OrdersResponse = Order[];

@@ -6,5 +6,5 @@ export const voucherService = {
   getVoucherByUser: (id: number) => apiCore.get<Voucher[]>(`/voucher/user-vouchers/${id}`),
   getAllPromoVoucher: () => apiCore.get<Voucher[]>(`/voucher/promotions`),
   redeemVoucher: (params: { user_id: number; code: string }) =>
-    apiCore.post<String[]>(`/voucher/redeem`, params),
+    apiCore.post<String>(`/voucher/redeem`, params),
 };

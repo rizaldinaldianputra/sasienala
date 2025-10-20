@@ -120,7 +120,7 @@ const Chat = ({ userId }) => {
                       </div>
 
                       <button
-                        onClick={() => handleAddToCart(r.payload.item_id, r.payload.size_id)}
+                        onClick={() => handleAddToCart(r.payload.item_id, r.payload.model_id)}
                         className="bg-orange-500 text-white w-full py-2 rounded mt-2 hover:bg-orange-600"
                       >
                         + Tambah ke Keranjang

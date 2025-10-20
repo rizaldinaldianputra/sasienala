@@ -8,9 +8,10 @@ import { useOrders } from '../hook/useOrder';
 const TransaksiDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { fetchOrderById } = useOrders();
+  const { fetchOrderById, confirmPayment } = useOrders();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -42,17 +43,32 @@ const TransaksiDetail = () => {
     );
   }
 
+  const handleConfirmOrder = async () => {
+    if (!order || processing) return;
+    setProcessing(true);
+    try {
+      const res = await confirmPayment(order.id);
+      if (res?.message) {
+        alert(res.message);
+      } else {
+        alert('Pesanan berhasil dikonfirmasi.');
+      }
+      navigate('/transaksi');
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan saat konfirmasi pesanan.');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20 font-sans relative">
       <Header title="Rincian Pesanan" />
 
       {/* Status Pesanan */}
       <div className="bg-[#D6C3A5] text-white text-center py-3 text-sm font-medium">
-        Pesanan telah tiba pada{' '}
-        {new Date(order.arrived_at || order.updated_at).toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: 'short',
-        })}
+        {order.status === 'completed' ? 'Pesanan telah diterima' : 'Pesanan dalam perjalanan'}
       </div>
 
       {/* Info Pengiriman */}
@@ -62,7 +78,6 @@ const TransaksiDetail = () => {
           <span className="text-gray-600">COD :</span>
           <span className="font-semibold ml-1">{order.payment_ref || '-'}</span>
         </div>
-
         <div className="flex items-start mt-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +95,9 @@ const TransaksiDetail = () => {
           </svg>
           <div>
             <p className="text-sm text-orange-600 font-medium">
-              Pesanan tiba di alamat tujuan, diterima oleh yang bersangkutan.
+              {order.status === 'completed'
+                ? 'Pesanan diterima oleh pelanggan'
+                : 'Pesanan sedang dalam perjalanan'}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               {new Date(order.arrived_at || order.updated_at).toLocaleDateString('id-ID', {
@@ -124,19 +141,6 @@ const TransaksiDetail = () => {
                   <span className="ml-2">Rp{item.price.toLocaleString('id-ID')}</span>
                   <span className="ml-auto">x {item.quantity}</span>
                 </div>
-
-                {/* {order.discount && (
-                  <div className="flex justify-between items-center bg-[#F7F4EE] px-3 py-2 rounded-md mt-3 w-fit">
-                    <span className="text-gray-600 text-sm">Diskon Gratis Ongkir</span>
-                    <span className="text-gray-600 text-sm ml-4">
-                      Rp{order.discount?.toLocaleString('id-ID')}
-                    </span>
-                  </div>
-                )}
-
-                <p className="text-right text-[#E05C2A] font-semibold text-lg mt-3">
-                  Rp{(item.price * item.quantity).toLocaleString('id-ID')}
-                </p> */}
               </div>
             </div>
           </div>
@@ -153,18 +157,26 @@ const TransaksiDetail = () => {
 
       {/* Tombol Aksi */}
       <div className="bg-white p-4 mt-3 flex space-x-3">
-        <button
-          className="flex-1 border border-gray-400 py-2 rounded-md text-gray-700 text-sm font-medium"
-          onClick={() => alert('Pengembalian diajukan')}
-        >
-          Ajukan Pengembalian
-        </button>
-        <button
-          className="flex-1 bg-[#D6C3A5] text-white py-2 rounded-md text-sm font-medium"
-          onClick={() => navigate('/transaksi')}
-        >
-          Pesanan Selesai
-        </button>
+        {/* Ajukan Pengembalian hanya jika completed */}
+        {order.status === 'completed' && (
+          <button
+            className="flex-1 border border-gray-400 py-2 rounded-md text-gray-700 text-sm font-medium"
+            onClick={() => alert('Pengembalian diajukan')}
+          >
+            Ajukan Pengembalian
+          </button>
+        )}
+
+        {/* Konfirmasi Pesanan hanya jika delivered tapi belum completed */}
+        {order.status === 'shipped' && order.shipping_status === 'delivered' && (
+          <button
+            className="flex-1 bg-[#D6C3A5] text-white py-2 rounded-md text-sm font-medium"
+            onClick={handleConfirmOrder}
+            disabled={processing}
+          >
+            {processing ? 'Memproses...' : 'Pesanan Selesai'}
+          </button>
+        )}
       </div>
 
       <BottomNav />

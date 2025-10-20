@@ -1,14 +1,12 @@
 # netlify.toml
 
 [build]
-  # Perintah build
   command = "npm run build"
-  # Folder hasil build yang akan dipublish
   publish = "dist"
 
 [build.environment]
-  # Pakai Node versi 20 agar kompatibel dengan Vite 7
-  NODE_VERSION = "20"
+  # Pakai Node versi spesifik yang valid di Netlify
+  NODE_VERSION = "20.19.0"
 
 # Optional: redirect root ke index.html (untuk SPA)
 [[redirects]]

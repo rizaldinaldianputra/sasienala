@@ -1,12 +1,14 @@
 // src/pages/ProductDetail.jsx
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { useCart } from '../hook/useCart';
 import { useProducts } from '../hook/useProduct';
-import { getUserId } from '../session/session';
+import { getToken, getUserId } from '../session/session';
 
 const ProductDetail = () => {
+  const navigate = useNavigate(); // <- jangan lupa ini
+
   const { id } = useParams();
 
   // Gunakan hook dengan autoFetchAll = false supaya tidak hit get-products
@@ -111,22 +113,64 @@ const ProductDetail = () => {
       : 0;
 
   const handleAddToCart = async () => {
-    if (!selectedColor || !selectedSize) return;
+    // cek token
+    const token = getToken();
+    if (!token) {
+      alert('Silakan login terlebih dahulu');
+      navigate('/login'); // arahkan ke halaman login
+      return;
+    }
 
+    // cek pilihan color & size
+    if (!selectedColor) {
+      alert('Silakan pilih warna');
+      return;
+    }
+    if (!selectedSize) {
+      alert('Silakan pilih ukuran');
+      return;
+    }
+
+    // cari model berdasarkan color
     const colorModel = product.model_list.find((m) => (m.color_code || m.color) === selectedColor);
-    if (!colorModel) return;
+    if (!colorModel) {
+      alert('Pilihan warna tidak valid');
+      return;
+    }
 
+    // cari size
     const sizeModel = colorModel.size_list.find((s) => s.size === selectedSize);
-    if (!sizeModel || sizeModel.stock <= 0) {
+    if (!sizeModel) {
+      alert('Pilihan ukuran tidak valid');
+      return;
+    }
+
+    // cek stok
+    if (sizeModel.stock <= 0) {
       alert('Stok tidak tersedia');
       return;
     }
 
+    // ambil userId
     const userId = getUserId();
-    if (!userId) return;
+    if (!userId) {
+      alert('User tidak ditemukan, silakan login');
+      navigate('/login');
+      return;
+    }
 
-    const result = await addCartItem(userId, product.item_id, sizeModel.model_id, 1);
-    alert(result.message);
+    // tambah ke cart
+    try {
+      const result = await addCartItem(userId, product.item_id, sizeModel.model_id, 1);
+      if (result.success) {
+        alert('Berhasil ditambahkan ke keranjang');
+      } else {
+        alert(result.message || 'Gagal menambahkan ke keranjang');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan, coba lagi nanti');
+    }
   };
 
   return (

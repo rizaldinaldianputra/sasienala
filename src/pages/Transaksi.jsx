@@ -88,6 +88,7 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
     final_total,
     snap_token,
     shipping_tracking_number,
+    shipping_service,
     id: order_id,
   } = transaction;
 
@@ -194,7 +195,11 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
       return (
         <>
           <button
-            onClick={() => navigate(`/tracking/${order_id}`)}
+            onClick={() =>
+              navigate(
+                `/tracking?order_id=${order_id}&awb=${shipping_tracking_number}&courier=${shipping_service}`,
+              )
+            }
             className="py-2 px-4 rounded-md bg-blue-500 text-white text-sm font-medium hover:bg-blue-600"
           >
             Lacak
@@ -232,7 +237,7 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
       return (
         <>
           <button
-            onClick={() => navigate(`/produk`)}
+            onClick={() => items[0] && navigate(`/product/${items[0].product_id}`)}
             className="py-2 px-4 rounded-md bg-green-500 text-white text-sm font-medium hover:bg-green-600"
           >
             Beli Lagi
@@ -291,7 +296,8 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
       </div>
 
       {/* Item */}
-      {items.map((item, idx) => (
+      {/* Item */}
+      {items.slice(0, 1).map((item, idx) => (
         <div
           key={idx}
           onClick={() => navigate(`/transaksidetail/${order_id}`)}

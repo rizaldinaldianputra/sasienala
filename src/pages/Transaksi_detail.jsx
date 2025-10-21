@@ -68,15 +68,27 @@ const TransaksiDetail = () => {
 
       {/* Status Pesanan */}
       <div className="bg-[#D6C3A5] text-white text-center py-3 text-sm font-medium">
-        {order.status === 'completed' ? 'Pesanan telah diterima' : 'Pesanan dalam perjalanan'}
+        {order.status === 'completed'
+          ? 'Pesanan telah diterima'
+          : order.shipping_status === 'delivered'
+          ? 'Pesanan telah dikirim'
+          : 'Pesanan sedang diproses'}
       </div>
 
       {/* Info Pengiriman */}
       <div className="bg-white p-4 mt-3 border-b border-gray-200">
         <p className="text-sm text-gray-700 font-medium mb-2">INFO PENGIRIMAN</p>
-        <div className="items-center text-sm mb-2">
-          <span className="text-gray-600">COD :</span>
-          <span className="font-semibold ml-1">{order.payment_ref || '-'}</span>
+        <div className="text-sm mb-2">
+          <span className="text-gray-600">Kurir :</span>
+          <span className="font-semibold ml-1">{order.shipping_courier || '-'}</span>
+        </div>
+        <div className="text-sm mb-2">
+          <span className="text-gray-600">Layanan :</span>
+          <span className="font-semibold ml-1">{order.shipping_service?.toUpperCase() || '-'}</span>
+        </div>
+        <div className="text-sm mb-2">
+          <span className="text-gray-600">Nomor Resi :</span>
+          <span className="font-semibold ml-1">{order.shipping_tracking_number || '-'}</span>
         </div>
         <div className="flex items-start mt-2">
           <svg
@@ -95,17 +107,17 @@ const TransaksiDetail = () => {
           </svg>
           <div>
             <p className="text-sm text-orange-600 font-medium">
-              {order.status === 'completed'
-                ? 'Pesanan diterima oleh pelanggan'
-                : 'Pesanan sedang dalam perjalanan'}
+              {order.shipping_status === 'delivered'
+                ? 'Pesanan telah dikirim ke alamat tujuan'
+                : 'Pesanan sedang diproses'}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {new Date(order.arrived_at || order.updated_at).toLocaleDateString('id-ID', {
+              {new Date(order.updated_at).toLocaleDateString('id-ID', {
                 day: '2-digit',
                 month: 'long',
                 year: 'numeric',
               })}{' '}
-              {new Date(order.arrived_at || order.updated_at).toLocaleTimeString('id-ID', {
+              {new Date(order.updated_at).toLocaleTimeString('id-ID', {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
@@ -117,9 +129,20 @@ const TransaksiDetail = () => {
       {/* Alamat Pengiriman */}
       <div className="bg-white p-4 mt-3 border-b border-gray-200">
         <p className="text-sm text-gray-700 font-medium mb-2">ALAMAT PENGIRIMAN</p>
-        <p className="text-base font-semibold text-gray-800">{order.customer_name}</p>
-        <p className="text-sm text-gray-600 mb-1">{order.customer_phone}</p>
-        <p className="text-sm text-gray-600">{order.shipping_address}</p>
+        <p className="text-base font-semibold text-gray-800">
+          {order.shipping_address?.receiver_name}
+        </p>
+        <p className="text-sm text-gray-600 mb-1">{order.shipping_address?.phone}</p>
+        <p className="text-sm text-gray-600">
+          {order.shipping_address?.full_address}, {order.shipping_address?.subdistrict_name},{' '}
+          {order.shipping_address?.district_name}, {order.shipping_address?.city_name},{' '}
+          {order.shipping_address?.province_name}, {order.shipping_address?.postal_code}
+        </p>
+        {order.shipping_address?.other && (
+          <p className="text-xs text-gray-500 mt-1 italic">
+            Catatan: {order.shipping_address.other}
+          </p>
+        )}
       </div>
 
       {/* Produk */}
@@ -137,10 +160,10 @@ const TransaksiDetail = () => {
                   {item.product_name}
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                  <span>{item.variant || '-'}</span>
-                  <span className="ml-2">Rp{item.price.toLocaleString('id-ID')}</span>
+                  <span>Rp{item.price.toLocaleString('id-ID')}</span>
                   <span className="ml-auto">x {item.quantity}</span>
                 </div>
+                {item.note && <p className="text-xs text-gray-500 mt-1">Catatan: {item.note}</p>}
               </div>
             </div>
           </div>
@@ -157,7 +180,6 @@ const TransaksiDetail = () => {
 
       {/* Tombol Aksi */}
       <div className="bg-white p-4 mt-3 flex space-x-3">
-        {/* Ajukan Pengembalian hanya jika completed */}
         {order.status === 'completed' && (
           <button
             className="flex-1 border border-gray-400 py-2 rounded-md text-gray-700 text-sm font-medium"
@@ -167,7 +189,6 @@ const TransaksiDetail = () => {
           </button>
         )}
 
-        {/* Konfirmasi Pesanan hanya jika delivered tapi belum completed */}
         {order.status === 'shipped' && order.shipping_status === 'delivered' && (
           <button
             className="flex-1 bg-[#D6C3A5] text-white py-2 rounded-md text-sm font-medium"

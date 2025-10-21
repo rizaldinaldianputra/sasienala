@@ -19,12 +19,11 @@ function MemberShip() {
     setProcessingId(rewardId);
     try {
       const res = await redeemReward(rewardId);
+      console.log(res);
       if (res) {
-        alert(
-          `Berhasil redeem reward!\nTransaction ID: ${res.transaction_id}\nPoints Remaining: ${res.points_remaining}`,
-        );
+        alert(`${res.message}`);
       } else {
-        alert('Gagal redeem reward.'); // fallback kalau res null
+        alert(`${res.detail}`); // fallback kalau res null
       }
     } catch (err) {
       console.error(err);
@@ -81,45 +80,60 @@ function MemberShip() {
           </div>
         </div>
 
-        {/* Loyalty Tiers */}
-        <div className="p-4 bg-white border-t border-gray-200">
-          <h2 className="text-sm font-semibold text-gray-800 mb-3">Membership Tier</h2>
-          <div className="grid grid-cols-1 gap-3">
-            {tiers.map((tier) => (
-              <div key={tier.id} className="bg-gray-50 p-3 rounded-lg">
-                <div className="text-sm font-medium text-gray-800">{tier.name}</div>
-                <div className="text-xs text-gray-500">{tier.description}</div>
-                <div className="text-xs text-gray-600 mt-1">
-                  Point Rate: {tier.other_benefits.point_rate}, Bonus:{' '}
-                  {tier.other_benefits.bonus_points} pts
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Katalog Reward */}
         <div className="p-4 bg-white border-t border-gray-200">
           <h2 className="text-sm font-semibold text-gray-800 mb-3">Katalog Reward</h2>
           {(rewardsLoading || loyaltyLoading) && (
             <div className="text-xs text-gray-500">Loading...</div>
           )}
-          {(rewardsError || loyaltyError) && (
-            <div className="text-xs text-red-500">{rewardsError || loyaltyError}</div>
-          )}
+
           {!rewardsLoading && rewards?.length === 0 && (
             <div className="text-xs text-gray-500">Belum ada reward tersedia.</div>
           )}
           <div className="grid grid-cols-1 gap-3">
-            {rewards.map((reward) => (
-              <div key={reward.id} className="bg-gray-50 p-3 rounded-lg flex flex-col">
-                <div className="text-sm font-medium text-gray-800">{reward.name}</div>
-                <div className="text-xs text-gray-500">{reward.description}</div>
-                <div className="text-xs text-gray-600 mt-1">
-                  Points Required: {reward.points_required} | Available: {reward.quantity_available}
+            {rewards.map((reward) => {
+              const tierColors = {
+                Circle: 'bg-yellow-100 text-yellow-800',
+                Prime: 'bg-gray-200 text-gray-800',
+                Elite: 'bg-yellow-300 text-yellow-900',
+                Platinum: 'bg-purple-100 text-purple-800',
+              };
+              const tagColor = tierColors[reward.required_tier_name] || 'bg-blue-100 text-blue-800';
+
+              return (
+                <div
+                  key={reward.id}
+                  className="relative bg-gray-50 p-3 rounded-lg flex flex-col justify-between"
+                >
+                  {/* Tag di kanan atas */}
+                  <span
+                    className={`absolute top-2 right-2 inline-block ${tagColor} text-xs font-semibold px-2 py-1 rounded-full`}
+                  >
+                    {reward.required_tier_name}
+                  </span>
+
+                  {/* Konten reward */}
+                  <div className="flex flex-col space-y-1">
+                    <div className="text-sm font-medium text-gray-800">{reward.name}</div>
+                    <div className="text-xs text-gray-500">{reward.description}</div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      Points Required: {reward.points_required} | Available:{' '}
+                      {reward.quantity_available}
+                    </div>
+                  </div>
+
+                  {/* Tombol Redeem di bawah */}
+                  <div className="mt-3">
+                    <button
+                      onClick={() => handleRedeemReward(reward.id)}
+                      className="w-full py-2 px-4 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 flex items-center justify-center space-x-2"
+                    >
+                      <span>Redeem</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

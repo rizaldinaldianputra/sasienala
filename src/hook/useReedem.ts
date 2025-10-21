@@ -16,7 +16,7 @@ export const useRedeemReward = () => {
       const res = await loyaltyRedeemService.getAll();
       setRewards(res);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch rewards');
+      setError(err.detail || 'Failed to fetch rewards');
     } finally {
       setLoading(false);
     }
@@ -25,14 +25,14 @@ export const useRedeemReward = () => {
   const redeemReward = async (rewardId: number): Promise<{ message: string } | null> => {
     setRedeemLoading(true);
     setError(null);
+
     try {
       const res = await loyaltyRedeemService.redeemReward(rewardId);
-
       let message = 'Terjadi kesalahan.';
 
       // backend sukses
       if ('success' in res && res.success) {
-        message = res.message;
+        message = res.message || 'Berhasil diredeem';
         await fetchRewards(); // refresh reward list after redeem
       }
       // backend gagal
@@ -42,7 +42,8 @@ export const useRedeemReward = () => {
 
       return { message };
     } catch (err: any) {
-      const message = err.message || 'Failed to redeem reward';
+      const message =
+        err.message || 'Anda telah mencapai batas maksimal penukaran untuk reward ini';
       setError(message);
       return { message };
     } finally {

@@ -83,7 +83,6 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
     status,
     payment_status,
     shipping_status,
-    created_at,
     items,
     final_total,
     snap_token,

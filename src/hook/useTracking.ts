@@ -1,10 +1,10 @@
 // src/hook/useTracking.ts
 import { useState } from 'react';
-import { TrackingParams, TrackingResponse } from '../interface/tracking';
+import { TrackingData, TrackingParams } from '../interface/tracking';
 import { trackingService } from '../service/tracking_service';
 
 export const useTracking = () => {
-  const [tracking, setTracking] = useState<TrackingResponse | null>(null);
+  const [tracking, setTracking] = useState<TrackingData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,10 +13,19 @@ export const useTracking = () => {
     setError(null);
     try {
       const res = await trackingService.getTracking(params);
-      setTracking(res);
+      console.log(res);
+
+      if (res && res.tracking && res.tracking.data) {
+        setTracking(res.tracking.data); // langsung ambil data yang dipakai di component
+      } else {
+        setError('Tidak ditemukan AWB yang valid');
+        setTracking(null);
+      }
+
       return res;
     } catch (err: any) {
       setError(err.message || 'Gagal mengambil data tracking');
+      setTracking(null);
       return null;
     } finally {
       setLoading(false);

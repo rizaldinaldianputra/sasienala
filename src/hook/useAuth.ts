@@ -24,5 +24,25 @@ export const useAuth = () => {
     }
   };
 
-  return { login, loading, error };
+  const register = async (email: string, password: string, username: string): Promise<any> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await authService.register({ email, password, username });
+
+      // res.data adalah isi JSON dari backend
+      console.log(res.data.access_token); // jika sukses
+      console.log(res.data.detail); // jika backend mengembalikan { detail: 'Email sudah terdaftar' }
+
+      return res.data; // bisa langsung return data saja
+    } catch (err: any) {
+      const message = err.response?.data?.detail || 'Register failed';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { login, loading, error, register };
 };

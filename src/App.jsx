@@ -15,6 +15,8 @@ import Product from './pages/Product';
 import ProductDetail from './pages/Product_detail';
 import ProfilePage from './pages/Profile_detail';
 import Promo from './pages/Promo';
+import Register from './pages/Register';
+import Tracking from './pages/Tracking';
 import Transaksi from './pages/Transaksi';
 import TransaksiDetail from './pages/Transaksi_detail';
 import VoucherPage from './pages/Voucher';
@@ -56,6 +58,8 @@ export default function App() {
           <Route path="/membership" element={<MemberShip />} />
           <Route path="/point" element={<PointRedeem />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/tracking" element={<Tracking />} />
         </Routes>
       </main>
     </div>

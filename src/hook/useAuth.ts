@@ -30,10 +30,6 @@ export const useAuth = () => {
     try {
       const res = await authService.register({ email, password, username });
 
-      // res.data adalah isi JSON dari backend
-      console.log(res.data.access_token); // jika sukses
-      console.log(res.data.detail); // jika backend mengembalikan { detail: 'Email sudah terdaftar' }
-
       return res.data; // bisa langsung return data saja
     } catch (err: any) {
       const message = err.response?.data?.detail || 'Register failed';

@@ -13,13 +13,13 @@ const Promo = () => {
   }, []);
 
   const handleRedeem = async (code) => {
-    try {
-      const res = await redeemVoucher(code);
-      console.log('Voucher berhasil diklaim:', res);
-      alert('Voucher berhasil diklaim!');
-    } catch (err) {
-      console.error(err);
-      alert(err.message || 'Terjadi kesalahan saat klaim voucher');
+    const res = await redeemVoucher(code);
+
+    // pastikan pakai perbandingan ===
+    if (res?.status === 400) {
+      alert(res?.data?.detail?.message || 'Terjadi kesalahan');
+    } else {
+      alert('Berhasil di klaim');
     }
   };
 

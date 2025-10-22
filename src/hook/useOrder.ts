@@ -15,7 +15,7 @@ export const useOrders = () => {
     try {
       const userId = getUserId();
       const res = await orderService.getAll(userId || 0);
-      setOrders(res);
+      setOrders(res.data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch orders');
     } finally {

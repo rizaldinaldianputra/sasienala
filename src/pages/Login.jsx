@@ -23,7 +23,13 @@ const Login = () => {
         alert(result.message);
       }
     } catch (err) {
-      alert(err);
+      if (err.response?.data.detail.is_verification) {
+        navigate('/otp', { state: { email: email, status: 'login' } });
+      } else {
+        alert(err.response?.data?.detail.message);
+      }
+
+      // alert bisa tampilkan message dari server atau default
     }
   };
 

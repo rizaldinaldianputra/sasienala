@@ -13,12 +13,12 @@ export const useUser = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await userService.getAll();
-      setUser(data);
+      const res = await userService.getAll();
+      setUser(res.data);
 
       // Simpan user_id ke cookie
-      if (data.id) {
-        Cookies.set('userId', data.id.toString(), { expires: 7 });
+      if (res.data.id) {
+        Cookies.set('userId', res.data.id.toString(), { expires: 7 });
       }
     } catch (err: any) {
       setError(err.message || 'Error fetching user');

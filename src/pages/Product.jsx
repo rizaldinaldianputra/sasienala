@@ -20,7 +20,7 @@ const Product = () => {
   useEffect(() => {
     productService
       .getProductCategory()
-      .then((res) => setCategories(res))
+      .then((res) => setCategories(res.data))
       .catch((err) => console.error(err));
   }, []);
 
@@ -55,7 +55,7 @@ const Product = () => {
     } else {
       setSelectedCategory(categoryId);
       const res = await fetchProductsByCategory(categoryId);
-      setLocalProducts(res?.products ?? []);
+      setLocalProducts(res?.data.products ?? []);
     }
   };
 

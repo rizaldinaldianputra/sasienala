@@ -23,7 +23,7 @@ export const useLoyalty = () => {
       const userId = getUserId();
       if (!userId) throw new Error('User ID not found');
       const res = await loyaltyService.getStatus(userId);
-      setStatus(res);
+      setStatus(res.data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch loyalty status');
     } finally {
@@ -38,7 +38,7 @@ export const useLoyalty = () => {
       const userId = getUserId();
       if (!userId) throw new Error('User ID not found');
       const res = await loyaltyService.getTransactions(userId);
-      setTransactions(res);
+      setTransactions(res.data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch loyalty transactions');
     } finally {
@@ -51,7 +51,7 @@ export const useLoyalty = () => {
     setError(null);
     try {
       const res = await loyaltyService.getTiers();
-      setTiers(res);
+      setTiers(res.data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch loyalty tiers');
     } finally {

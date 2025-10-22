@@ -22,10 +22,10 @@ const Register = () => {
 
     try {
       const result = await register(email, password, username);
-
-      if (result.id > 0) {
+      console.log(result);
+      if (result) {
         alert('Registration Success');
-        navigate('/login');
+        navigate('/otp', { state: { email: email, status: 'register' } });
       } else {
         alert(result);
         // alert(result?.detail || 'Registration failed');

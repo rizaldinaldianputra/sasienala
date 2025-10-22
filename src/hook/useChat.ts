@@ -14,7 +14,7 @@ export const useChatBot = (userId: number) => {
     try {
       const userId = getUserId();
       const res = await chatbotService.getHistory(userId || 0);
-      setChats(res);
+      setChats(res.data);
     } catch (err) {
       console.error('Error fetch chat history', err);
     } finally {
@@ -41,7 +41,7 @@ export const useChatBot = (userId: number) => {
     setLoading(true);
     try {
       const res = await chatbotService.ask(userId, query);
-      const response: ChatBotAskResponse = res;
+      const response: ChatBotAskResponse = res.data;
 
       // Tambahkan pesan assistant
       const assistantMessage: ChatBot = {

@@ -51,8 +51,13 @@ const ProfilePage = () => {
       try {
         await updateProfilePhoto(file);
         alert('Foto profil berhasil diperbarui');
+
+        // Ambil data user terbaru dari server
+        setLoading(true);
+        await fetchUser();
+        setLoading(false);
       } catch (err) {
-        alert(err.message || 'Gagal update foto profil');
+        alert(err?.response?.data?.message || err?.message || 'Gagal update foto profil');
       } finally {
         setUploading(false);
       }
@@ -65,15 +70,17 @@ const ProfilePage = () => {
       phone_number: phone,
       gender,
       birth_date: birthDate,
-      profile_picture: profilePicture,
+      profile_picture: profilePicture, // harus File atau null
     };
 
     try {
-      await updateProfile(updatedProfile);
+      await updateProfile(updatedProfile); // FormData otomatis dibuat di updateProfile
       alert('Profil berhasil diperbarui');
       navigate('/account');
     } catch (err) {
-      alert(err.message || 'Gagal update profil');
+      // Jika err berasal dari Axios, bisa pakai err.response?.data?.message
+      const message = err?.response?.data?.message || err?.message || 'Gagal update profil';
+      alert(message);
     }
   };
 

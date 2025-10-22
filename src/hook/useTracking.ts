@@ -13,16 +13,15 @@ export const useTracking = () => {
     setError(null);
     try {
       const res = await trackingService.getTracking(params);
-      console.log(res);
 
-      if (res && res.tracking && res.tracking.data) {
-        setTracking(res.tracking.data); // langsung ambil data yang dipakai di component
+      if (res.data && res.data.tracking && res.data.tracking.data) {
+        setTracking(res.data.tracking.data); // langsung ambil data yang dipakai di component
       } else {
         setError('Tidak ditemukan AWB yang valid');
         setTracking(null);
       }
 
-      return res;
+      return res.data;
     } catch (err: any) {
       setError(err.message || 'Gagal mengambil data tracking');
       setTracking(null);

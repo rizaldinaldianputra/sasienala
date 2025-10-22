@@ -19,7 +19,7 @@ export const useCart = () => {
       setUserId(id);
 
       const response = await cartService.getCartbyUser(id);
-      setCartItems(response); // ambil data dari axios response
+      setCartItems(response.data); // ambil data dari axios response
       return response;
     } catch (err: any) {
       setError(err.message || 'Error fetching cart');
@@ -40,10 +40,10 @@ export const useCart = () => {
       const response = await cartService.updateQtyCart(cartId, { quantity: qty });
       // update quantity di state lokal jika perlu
       const updatedCart = cartItems.map((item) =>
-        item.id === cartId ? { ...item, quantity: response.quantity } : item,
+        item.id === cartId ? { ...item, quantity: response.data.quantity } : item,
       );
       setCartItems(updatedCart);
-      return response;
+      return response.data;
     } catch (err: any) {
       setError(err.message || 'Error updating quantity');
       return null;
@@ -68,9 +68,9 @@ export const useCart = () => {
         model_id: model_id,
         quantity: quantity,
       });
-      return response;
+      return response.data;
     } catch (err: any) {
-      setError(err.message || 'Error adding item to cart');
+      setError(err.data.message);
       return null;
     } finally {
       setLoading(false);

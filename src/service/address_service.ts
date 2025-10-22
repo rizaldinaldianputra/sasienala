@@ -7,7 +7,7 @@ export const addressService = {
   getAllAddress: (id: number) => apiCore.get<ShippingAddress[]>(`/address/user/${id}`),
 
   // Ambil detail alamat berdasarkan ID
-  getAddressById: (id: number) => apiCore.get<ShippingAddress>(`/address/user/${id}`),
+  getAddressById: (id: number) => apiCore.get(`/address/user/${id}`),
 
   // Tambah alamat baru
   addAddress: (address: ShippingAddress) => apiCore.post<ShippingAddress>('/address/', address),

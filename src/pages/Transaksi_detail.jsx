@@ -17,7 +17,7 @@ const TransaksiDetail = () => {
     const fetchDetail = async () => {
       try {
         const res = await fetchOrderById(id);
-        setOrder(res);
+        setOrder(res.data);
       } catch (err) {
         console.error('Gagal mengambil detail transaksi:', err);
       } finally {

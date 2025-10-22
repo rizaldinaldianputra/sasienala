@@ -18,7 +18,7 @@ export const useVoucher = () => {
       const userId = getUserId();
       if (!userId) throw new Error('User ID tidak ditemukan');
       const res = await voucherService.getVoucherByUser(userId);
-      setVouchers(res);
+      setVouchers(res.data);
       return res;
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat mengambil voucher user');
@@ -34,7 +34,7 @@ export const useVoucher = () => {
     setError(null);
     try {
       const res = await voucherService.getAllPromoVoucher();
-      setAllVouchers(res);
+      setAllVouchers(res.data);
       return res;
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat mengambil promo voucher');
@@ -50,16 +50,12 @@ export const useVoucher = () => {
     try {
       const userId = getUserId();
       if (!userId) throw new Error('User ID tidak ditemukan');
+
       const res = await voucherService.redeemVoucher({ user_id: userId, code });
-
-      // Jika sukses, refresh voucher user
       await fetchVouchers();
-
-      alert(res || 'Voucher berhasil diklaim!');
       return res;
     } catch (err: any) {
-      alert(err.message || 'Gagal menukarkan voucher');
-      return null;
+      return err.response || err; // agar punya struktur status/data
     } finally {
       setLoading(false);
     }

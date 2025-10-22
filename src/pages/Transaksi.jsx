@@ -169,25 +169,11 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
           >
             Lanjutkan Pembayaran
           </button>
-          <button
-            onClick={() => navigate(`/transaksidetail/${order_id}`)}
-            className="py-2 px-4 rounded-md bg-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-400"
-          >
-            Detail
-          </button>
         </>
       );
     }
 
     if (payment_status === 'paid' && (status === 'pending' || status === 'confirmed')) {
-      return (
-        <button
-          onClick={() => navigate(`/transaksidetail/${order_id}`)}
-          className="py-2 px-4 rounded-md bg-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-400"
-        >
-          Detail
-        </button>
-      );
     }
 
     if (status === 'shipped' && shipping_status !== 'delivered') {
@@ -203,12 +189,6 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
           >
             Lacak
           </button>
-          <button
-            onClick={() => navigate(`/transaksidetail/${order_id}`)}
-            className="py-2 px-4 rounded-md bg-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-400"
-          >
-            Detail
-          </button>
         </>
       );
     }
@@ -221,12 +201,6 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
             className="py-2 px-4 rounded-md bg-green-500 text-white text-sm font-medium hover:bg-green-600"
           >
             Terima Pesanan
-          </button>
-          <button
-            onClick={() => navigate(`/transaksidetail/${order_id}`)}
-            className="py-2 px-4 rounded-md bg-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-400"
-          >
-            Detail
           </button>
         </>
       );
@@ -241,24 +215,9 @@ const TransactionCard = ({ transaction, refetch, setShowLoading }) => {
           >
             Beli Lagi
           </button>
-          <button
-            onClick={() => navigate(`/transaksidetail/${order_id}`)}
-            className="py-2 px-4 rounded-md bg-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-400"
-          >
-            Detail
-          </button>
         </>
       );
     }
-
-    return (
-      <button
-        onClick={() => navigate(`/transaksidetail/${order_id}`)}
-        className="py-2 px-4 rounded-md bg-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-400"
-      >
-        Detail
-      </button>
-    );
   };
 
   const handleBayarSekarang = () => {

@@ -124,12 +124,12 @@ const Checkout = () => {
   const handleCheckout = async () => {
     try {
       const res = await checkoutValidate();
-      if (!res.success) return alert(res.message || 'Checkout gagal');
+      if (!res.data.success) return alert(res.message || 'Checkout gagal');
 
       const finalRes = await checkoutFinal();
-      if (!finalRes.success) return alert('Checkout gagal, silakan coba lagi.');
+      if (!finalRes.data.success) return alert('Checkout gagal, silakan coba lagi.');
 
-      const snapToken = finalRes.snap_token;
+      const snapToken = finalRes.data.snap_token;
       if (!snapToken) return alert('Snap token tidak tersedia!');
 
       setLoadingPayment(true);
@@ -137,7 +137,7 @@ const Checkout = () => {
       window.snap.pay(snapToken, {
         onSuccess: async (result) => {
           try {
-            const payloadConfirm = { order_id: finalRes.order.id, snap_response: result };
+            const payloadConfirm = { order_id: finalRes.data.order.id, snap_response: result };
             const confirmRes = await confirmPayment(payloadConfirm);
             alert(confirmRes?.message || 'Pembayaran berhasil!');
             navigate('/transaksi');

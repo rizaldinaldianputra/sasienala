@@ -10,6 +10,7 @@ import Chat from './pages/Chat';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import MemberShip from './pages/MemberShip';
+import OtpVerification from './pages/Otp';
 import PointRedeem from './pages/Point.';
 import Product from './pages/Product';
 import ProductDetail from './pages/Product_detail';
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/register" element={<Register />} />
           <Route path="/tracking" element={<Tracking />} />
+          <Route path="/otp" element={<OtpVerification />} />
         </Routes>
       </main>
     </div>

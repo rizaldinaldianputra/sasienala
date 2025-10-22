@@ -14,7 +14,7 @@ export const useRedeemReward = () => {
     setError(null);
     try {
       const res = await loyaltyRedeemService.getAll();
-      setRewards(res);
+      setRewards(res.data);
     } catch (err: any) {
       setError(err.detail || 'Failed to fetch rewards');
     } finally {
@@ -31,13 +31,13 @@ export const useRedeemReward = () => {
       let message = 'Terjadi kesalahan.';
 
       // backend sukses
-      if ('success' in res && res.success) {
-        message = res.message || 'Berhasil diredeem';
-        await fetchRewards(); // refresh reward list after redeem
+      if ('success' in res.data && res.data.success) {
+        message = res.data.message || 'Berhasil diredeem';
+        await fetchRewards(); // refres.datah reward list after redeem
       }
       // backend gagal
-      else if ('message' in res) {
-        message = res.message;
+      else if ('message' in res.data) {
+        message = res.data.message;
       }
 
       return { message };

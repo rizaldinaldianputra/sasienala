@@ -19,7 +19,7 @@ export const useProducts = (autoFetchAll = true) => {
     try {
       setLoading(true);
       const res = await productService.getAllProduct();
-      setData(res);
+      setData(res.data);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat mengambil produk');
@@ -35,7 +35,7 @@ export const useProducts = (autoFetchAll = true) => {
       setError(null);
       setData(null);
       const res = await productService.searchProduct(key);
-      setData(res);
+      setData(res.data);
     } catch (err: any) {
       setError('Produk tidak ditemukan');
     } finally {
@@ -49,7 +49,7 @@ export const useProducts = (autoFetchAll = true) => {
     try {
       setLoading(true);
       const res = await productService.getProductById(id);
-      setProduct(res);
+      setProduct(res.data);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Gagal mengambil detail produk');
@@ -80,7 +80,7 @@ export const useProducts = (autoFetchAll = true) => {
     try {
       setLoading(true);
       const res = await productService.getProductCategory();
-      return res;
+      return res.data;
     } catch (err: any) {
       setError(err.message || 'Gagal mengambil kategori produk');
       return [];

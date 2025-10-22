@@ -5,7 +5,8 @@
     "jsx": "react-jsx",
     "strict": true,
     "moduleResolution": "node",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "lib": ["dom", "es2017"]
   },
   "include": ["src"]
 }

@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { API_KEY, BASE_URL } from '../constants/config';
 import { getToken } from '../session/session';
 
+// Membuat instance Axios
 const createApi = (baseURL: string = BASE_URL) =>
   axios.create({
     baseURL,
@@ -14,60 +15,68 @@ const createApi = (baseURL: string = BASE_URL) =>
 
 const api = createApi();
 
-// interceptor request
+// Interceptor request: tambahkan token jika ada
 api.interceptors.request.use(async (config) => {
   const token = await getToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// interceptor response
+// Interceptor response: tangani error
 api.interceptors.response.use(
-  (res) => {
-    return res;
-  },
+  (res) => res,
   (error: AxiosError<any>) => {
-    const backendMessage =
-      (error.response?.data as any)?.message || error.message || 'Terjadi kesalahan';
-    return Promise.reject(new Error(backendMessage));
+    // cukup reject error asli
+    return Promise.reject(error);
   },
 );
 
 // 🔥 CORE CRUD FUNCTION
 export const apiCore = {
-  get: async <T = any>(url: string, params?: any, baseURL: string = BASE_URL): Promise<T> => {
+  get: async <T = any>(url: string, params?: any, baseURL: string = BASE_URL): Promise<any> => {
     const client = baseURL === BASE_URL ? api : createApi(baseURL);
     const response = await client.get<T>(url, { params });
-    return response.data;
+    return response; // return seluruh response Axios
   },
 
-  post: async <T = any>(url: string, body?: any, baseURL: string = BASE_URL): Promise<T> => {
+  post: async <T = any>(url: string, body?: any, baseURL: string = BASE_URL): Promise<any> => {
     const client = baseURL === BASE_URL ? api : createApi(baseURL);
     const response = await client.post<T>(url, body);
-    return response.data;
+    return response; // return seluruh response Axios
   },
 
-  put: async <T = any>(url: string, body?: any, baseURL: string = BASE_URL): Promise<T> => {
+  put: async <T = any>(url: string, body?: any, baseURL: string = BASE_URL): Promise<any> => {
     const client = baseURL === BASE_URL ? api : createApi(baseURL);
     const response = await client.put<T>(url, body);
-    return response.data;
+    return response; // return seluruh response Axios
+  },
+  putForm: async <T = any>(
+    url: string,
+    formData: FormData,
+    baseURL: string = BASE_URL,
+  ): Promise<any> => {
+    const client = baseURL === BASE_URL ? api : createApi(baseURL);
+    const response = await client.put<T>(url, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response; // return seluruh response Axios
   },
 
-  delete: async <T = any>(url: string, baseURL: string = BASE_URL): Promise<T> => {
+  delete: async <T = any>(url: string, baseURL: string = BASE_URL): Promise<any> => {
     const client = baseURL === BASE_URL ? api : createApi(baseURL);
     const response = await client.delete<T>(url);
-    return response.data;
+    return response; // return seluruh response Axios
   },
 
   postForm: async <T = any>(
     url: string,
     formData: FormData,
     baseURL: string = BASE_URL,
-  ): Promise<T> => {
+  ): Promise<any> => {
     const client = baseURL === BASE_URL ? api : createApi(baseURL);
     const response = await client.post<T>(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return response.data;
+    return response; // return seluruh response Axios
   },
 };

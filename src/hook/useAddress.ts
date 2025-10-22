@@ -18,7 +18,7 @@ export const useAddress = (autoFetchAll = true) => {
       setLoading(true);
       const userId = getUserId();
       const res = await addressService.getAllAddress(userId || 0);
-      setAddresses(res); // langsung pakai res, jangan res.data
+      setAddresses(res.data); // langsung pakai res, jangan res.data
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat mengambil alamat');
     } finally {
@@ -31,12 +31,28 @@ export const useAddress = (autoFetchAll = true) => {
       setLoading(true);
       const userId = id || getUserId();
       const res = await addressService.getAddressById(userId || 0);
-      const primary = Array.isArray(res)
-        ? res.find((addr) => addr.is_primary)
-        : res.is_primary
-        ? res
+
+      // jika res array → ambil primary, jika object → cek langsung
+      const primary = Array.isArray(res.data)
+        ? res.data.find((addr: any) => addr.is_primary)
+        : res.data.is_primary
+        ? res.data
         : null;
+
+      // set hanya alamat primary
       setAddress(primary || null);
+
+      // jika ingin update juga daftar alamat di state utama
+      if (primary) {
+        setAddresses((prev: any[]) => {
+          const exists = prev.some((a) => a.id === primary.id);
+          if (exists) {
+            return prev.map((a) => (a.id === primary.id ? primary : a));
+          } else {
+            return [...prev, primary];
+          }
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat mengambil alamat');
     } finally {
@@ -48,7 +64,7 @@ export const useAddress = (autoFetchAll = true) => {
     try {
       setLoading(true);
       const res = await addressService.addAddress({ ...newAddress, user_id: getUserId() || 0 });
-      setAddresses((prev) => [...prev, res]);
+      setAddresses((prev) => [...prev, res.data]);
     } catch (err: any) {
       setError(err.message || 'Gagal menambahkan alamat');
     } finally {
@@ -61,7 +77,7 @@ export const useAddress = (autoFetchAll = true) => {
       setLoading(true);
       const res = await addressService.updateAddress(id, updatedAddress);
       setAddresses((prev) => prev.map((addr) => (addr.id === id ? res : addr)));
-      if (address?.id === id) setAddress(res);
+      if (address?.id === id) setAddress(res.data);
     } catch (err: any) {
       setError(err.message || 'Gagal memperbarui alamat');
     } finally {
@@ -160,9 +176,9 @@ export const useAddressDropdown = () => {
     try {
       setLoading(true);
       const res = await addressService.getDistrictByCity(cityId);
-      setDistricts(res); // langsung pakai res
+      setDistricts(res.data); // langsung pakai res
     } catch (err: any) {
-      setError(err.message || 'Gagal ambil kecamatan');
+      setError(err.detail);
     } finally {
       setLoading(false);
     }
@@ -172,9 +188,9 @@ export const useAddressDropdown = () => {
     try {
       setLoading(true);
       const res = await addressService.getSubdistrictByDistrict(districtId);
-      setSubdistricts(res); // langsung pakai res
+      setSubdistricts(res.data); // langsung pakai res
     } catch (err: any) {
-      setError(err.message || 'Gagal ambil kelurahan');
+      setError(err.detail || 'Gagal ambil kelurahan');
     } finally {
       setLoading(false);
     }
@@ -184,9 +200,9 @@ export const useAddressDropdown = () => {
     try {
       setLoading(true);
       const res = await addressService.getSubdistrictByDistrictName(districtName);
-      setSubdistricts(res); // langsung pakai res
+      setSubdistricts(res.data); // langsung pakai res
     } catch (err: any) {
-      setError(err.message || 'Gagal ambil kelurahan by nama kecamatan');
+      setError(err.detail || 'Gagal ambil kelurahan by nama kecamatan');
     } finally {
       setLoading(false);
     }

@@ -1,13 +1,21 @@
-import { DataUser, Profile, UpdateProfileResponse, UploadPhotoResponse } from '../interface/user';
+import { Profile, UpdateProfileResponse, UploadPhotoResponse } from '../interface/user';
 import { apiCore } from './main_service';
 
 export const userService = {
   // Ambil data user (check token)
-  getAll: (): Promise<DataUser> => apiCore.get<DataUser>('/profile/get-profile'),
+  getAll: () => apiCore.get('/profile/get-profile'),
 
-  // Update data profil (bio, phone_number, gender, birth_date, profile_picture)
   updateProfile: (profileData: Profile): Promise<UpdateProfileResponse> => {
-    return apiCore.put<UpdateProfileResponse>('/profile/update-profile', profileData);
+    const formData = new FormData();
+
+    // masukkan semua field dari profileData ke FormData
+    Object.entries(profileData).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value as any);
+      }
+    });
+
+    return apiCore.putForm<UpdateProfileResponse>('/profile/update-profile', formData);
   },
 
   // Update foto profil (form data)

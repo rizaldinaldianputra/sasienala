@@ -28,7 +28,7 @@ export const useCheckout = (
     try {
       setLoading(true);
       const res = await checkoutService.getShippingOptions(payload);
-      setCouriers(res.options.couriers);
+      setCouriers(res.data.options.couriers);
     } catch (err: any) {
       setError(err?.message || 'Gagal mengambil opsi pengiriman');
     } finally {
@@ -44,7 +44,7 @@ export const useCheckout = (
     try {
       setLoading(true);
       const res = await checkoutService.checkoutValidate(payloadCheck);
-      if (!res.success) setValidateMessage(res.message);
+      if (!res.data.success) setValidateMessage(res.data.message);
       else setValidateMessage(null);
       return res;
     } catch (err: any) {
@@ -61,8 +61,8 @@ export const useCheckout = (
     if (!payloadCheckout) return;
     try {
       setLoading(true);
-      const res: CheckoutPaymentResponse = await checkoutService.checkoutFinal(payloadCheckout);
-      setCheckoutResult(res);
+      const res = await checkoutService.checkoutFinal(payloadCheckout);
+      setCheckoutResult(res.data);
       return res;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Gagal melakukan checkout';

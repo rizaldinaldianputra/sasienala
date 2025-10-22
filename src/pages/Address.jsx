@@ -17,7 +17,7 @@ const AddressManager = () => {
       setLoading(true);
       const userId = getUserId();
       const res = await addressService.getAllAddress(userId || 0);
-      setAddresses(res.data || res);
+      setAddresses(res.data);
     } catch (err) {
       setError(err.message || 'Gagal fetch alamat');
     } finally {

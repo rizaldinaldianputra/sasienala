@@ -1,4 +1,3 @@
-// src/hook/useChatBot.ts
 import { useEffect, useState } from 'react';
 import { ChatBot, ChatBotAskResponse } from '../interface/chat';
 import { chatbotService } from '../service/chatbot_service';
@@ -12,8 +11,8 @@ export const useChatBot = (userId: number) => {
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const userId = getUserId();
-      const res = await chatbotService.getHistory(userId || 0);
+      const uid = getUserId();
+      const res = await chatbotService.getHistory(uid || 0);
       setChats(res.data);
     } catch (err) {
       console.error('Error fetch chat history', err);
@@ -22,30 +21,18 @@ export const useChatBot = (userId: number) => {
     }
   };
 
-  // Kirim pertanyaan dan langsung tambahkan ke list chat
+  // Kirim pertanyaan dan tambahkan assistant message saja
   const sendMessage = async (query: string) => {
     if (!query.trim()) return;
-
-    // Tambahkan pesan user
-    const userMessage: ChatBot = {
-      id: Date.now(), // ID sementara
-      user_id: userId,
-      role: 'user',
-      content: query,
-      payload: null,
-      source_type: null,
-      created_at: new Date().toISOString(),
-    };
-    setChats((prev) => [...prev, userMessage]);
 
     setLoading(true);
     try {
       const res = await chatbotService.ask(userId, query);
       const response: ChatBotAskResponse = res.data;
 
-      // Tambahkan pesan assistant
+      // Tambahkan assistant message ke chat list
       const assistantMessage: ChatBot = {
-        id: response.assistant_message_id,
+        id: response.assistant_message_id || Date.now(),
         user_id: userId,
         role: 'assistant',
         content: response.answer,
@@ -68,5 +55,5 @@ export const useChatBot = (userId: number) => {
     fetchHistory();
   }, []);
 
-  return { chats, loading, fetchHistory, sendMessage };
+  return { chats, loading, fetchHistory, sendMessage, setChats };
 };

@@ -1,43 +1,71 @@
-// src/pages/Chat.jsx
 import { useState } from 'react';
 import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
-import { COLORS } from '../constants/colors'; // pastikan path sesuai
+import { COLORS } from '../constants/colors';
 import { useCart } from '../hook/useCart';
 import { useChatBot } from '../hook/useChat';
-import { getToken, getUserId } from '../session/session'; // pastikan path
+import { getUserId } from '../session/session';
 
 const Chat = ({ userId }) => {
-  const { chats, sendMessage, loading } = useChatBot(userId);
+  const { chats, sendMessage, setChats } = useChatBot(userId);
   const [input, setInput] = useState('');
   const { addCartItem } = useCart();
+  const [isOpen, setIsOpen] = useState(true);
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    await sendMessage(input);
+
+    const tempMessage = {
+      id: Date.now(),
+      role: 'user',
+      content: input,
+    };
+
+    // Tambahkan pesan user ke chat list di UI
+    setChats((prev) => [...prev, tempMessage]);
+
+    const messageToSend = input;
     setInput('');
+    await sendMessage(messageToSend); // sendMessage hanya menambahkan assistant message
   };
 
   const handleAddToCart = async (productId, sizeId) => {
     if (!productId || !sizeId) return;
-
-    const userId = getUserId();
-    if (!userId) return;
-
-    const result = await addCartItem(userId, productId, sizeId, 1);
+    const uid = getUserId();
+    if (!uid) return;
+    const result = await addCartItem(uid, productId, sizeId, 1);
     alert(result.message);
   };
 
   return (
     <div className="min-h-screen bg-white font-sans pb-20">
       <Header />
-      {/* Banner */}
-      <div className="relative w-full max-w-3xl mx-auto my-6">
-        <img src="/home.png" alt="October Collection" className="w-full rounded-lg object-cover" />
-        <div className="absolute bottom-4 left-4 text-white">
-          <h2 className="text-2xl font-semibold">October Collection</h2>
+
+      <div className="max-w-3xl mx-auto my-6 relative">
+        {isOpen && (
+          <div className="relative">
+            <img
+              src="/home.png"
+              alt="October Collection"
+              className="w-full h-64 object-cover rounded-lg"
+            />
+            <div className="absolute bottom-4 left-4 text-white">
+              <h2 className="text-2xl font-semibold">October Collection</h2>
+            </div>
+          </div>
+        )}
+
+        <div
+          className={`flex flex-col items-center gap-1 cursor-pointer mt-2 ${
+            !isOpen ? 'pt-2' : ''
+          }`}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="w-6 h-0.5 bg-gray-400 rounded"></div>
+          <div className="w-6 h-0.5 bg-gray-400 rounded"></div>
         </div>
       </div>
+
       <div className="px-4 text-center my-6">
         <p className="text-gray-600">
           HAI RINA 💕, WELCOME TO SASIENALA!
@@ -47,12 +75,10 @@ const Chat = ({ userId }) => {
         </p>
       </div>
 
-      {/* Chat list + produk */}
-      {getToken() && (
+      {isOpen && (
         <div className="px-4 space-y-4">
           {chats.map((chat) => (
             <div key={chat.id}>
-              {/* Chat bubble */}
               <div className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={`px-4 py-2 rounded-lg max-w-xs break-words ${
@@ -64,7 +90,6 @@ const Chat = ({ userId }) => {
                 </div>
               </div>
 
-              {/* Render produk di dalam chat assistant */}
               {chat.role === 'assistant' &&
                 chat.payload?.rag_context
                   ?.filter((r) => r.document_type === 'product')
@@ -73,19 +98,14 @@ const Chat = ({ userId }) => {
                       key={r.id}
                       className="border p-4 rounded-lg shadow-sm bg-white flex gap-4 items-start mt-2"
                     >
-                      {/* Image di kiri */}
                       {r.payload.image_url && (
                         <img
                           src={r.payload.image_url}
                           alt={r.payload.product_name}
                           className="w-24 h-24 object-cover rounded-lg"
-                          onError={(e) => {
-                            e.currentTarget.src = '/broken-image.png';
-                          }}
+                          onError={(e) => (e.currentTarget.src = '/broken-image.png')}
                         />
                       )}
-
-                      {/* Info produk di kanan */}
                       <div className="flex-1">
                         <p className="font-semibold">{r.payload.product_name}</p>
                         <p className="text-orange-500 font-bold">
@@ -96,7 +116,7 @@ const Chat = ({ userId }) => {
                           <div className="flex gap-1 my-2 items-center">
                             <span className="text-sm">Warna:</span>
                             <div
-                              className={`w-5 h-5 rounded border`}
+                              className="w-5 h-5 rounded border"
                               style={{ backgroundColor: r.payload.color }}
                             ></div>
                           </div>
@@ -132,25 +152,22 @@ const Chat = ({ userId }) => {
         </div>
       )}
 
-      {/* Input */}
-      {getToken() && (
-        <div className="fixed bottom-20 w-full px-4 flex gap-2">
-          <input
-            type="text"
-            className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
-            placeholder="Tulis pesan kamu.."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          />
-          <button
-            className="bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700"
-            onClick={handleSend}
-          >
-            Kirim
-          </button>
-        </div>
-      )}
+      <div className="fixed bottom-20 w-full px-4 flex gap-2">
+        <input
+          type="text"
+          className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
+          placeholder="Tulis pesan kamu.."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+        />
+        <button
+          className="bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700"
+          onClick={handleSend}
+        >
+          Kirim
+        </button>
+      </div>
 
       <BottomNav />
     </div>

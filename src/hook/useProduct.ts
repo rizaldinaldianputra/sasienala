@@ -112,6 +112,7 @@ export const useProducts = (autoFetchAll = true) => {
     searchProduct,
     fetchProductById,
     fetchProductsByCategory,
+    fetchProducts,
     fetchCategories,
     clearData,
   };

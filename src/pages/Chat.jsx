@@ -151,8 +151,7 @@ const Chat = ({ userId }) => {
           ))}
         </div>
       )}
-
-      <div className="fixed bottom-20 w-full px-4 flex gap-2">
+      <div className="h-[100px] bg-white font-sans flex flex-row justify-between items-center px-4">
         <input
           type="text"
           className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
@@ -162,10 +161,17 @@ const Chat = ({ userId }) => {
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
         />
         <button
-          className="bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700"
+          className="bg-gray-300 p-3 rounded-full hover:bg-gray-400 ml-2 flex items-center justify-center"
           onClick={handleSend}
         >
-          Kirim
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-black"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
         </button>
       </div>
 

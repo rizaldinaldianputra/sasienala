@@ -38,32 +38,35 @@ export default function App() {
   if (!checkedToken) return null; // jangan render sebelum cek token
 
   return (
-    <div className="min-h-screen relative pb-20">
-      <main className="">
-        <Routes>
-          {/* jika user tidak punya token baru bisa ke login */}
-          <Route path="/login" element={<Login />} />
-          {/* semua route lainnya */}
-          <Route path="/" element={<Chat />} />
-          <Route path="/product" element={<Product />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/promo" element={<Promo />} />
-          <Route path="/transaksi" element={<Transaksi />} />
-          <Route path="/transaksidetail/:id" element={<TransaksiDetail />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/address" element={<AddressManager />} />
-          <Route path="/address/form" element={<AddressForm />} />
-          <Route path="/voucher" element={<VoucherPage />} />
-          <Route path="/membership" element={<MemberShip />} />
-          <Route path="/point" element={<PointRedeem />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/tracking" element={<Tracking />} />
-          <Route path="/otp" element={<OtpVerification />} />
-        </Routes>
-      </main>
+    <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="w-full max-w-sm bg-white min-h-screen relative pb-20">
+        {' '}
+        <main className="">
+          <Routes>
+            {/* jika user tidak punya token baru bisa ke login */}
+            <Route path="/login" element={<Login />} />
+            {/* semua route lainnya */}
+            <Route path="/" element={<Chat />} />
+            <Route path="/product" element={<Product />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/promo" element={<Promo />} />
+            <Route path="/transaksi" element={<Transaksi />} />
+            <Route path="/transaksidetail/:id" element={<TransaksiDetail />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/address" element={<AddressManager />} />
+            <Route path="/address/form" element={<AddressForm />} />
+            <Route path="/voucher" element={<VoucherPage />} />
+            <Route path="/membership" element={<MemberShip />} />
+            <Route path="/point" element={<PointRedeem />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/tracking" element={<Tracking />} />
+            <Route path="/otp" element={<OtpVerification />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 }

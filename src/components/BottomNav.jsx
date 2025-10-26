@@ -1,18 +1,13 @@
 // src/components/BottomNav.jsx
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getToken } from '../session/session'; // pastikan path benar
+import { getToken } from '../session/session';
 
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const navItems = [
-    {
-      to: '/',
-      label: 'Chat',
-      icon: '/icons/chat.svg',
-      iconActive: '/icons/chat-active.svg',
-    },
+    { to: '/', label: 'Chat', icon: '/icons/chat.svg', iconActive: '/icons/chat-active.svg' },
     {
       to: '/product',
       label: 'Produk',
@@ -40,10 +35,7 @@ export default function BottomNav() {
   ];
 
   const handleNavClick = (to) => {
-    if (
-      (to === '/account' || to === '/transaksi' || to === '/transaksi' || to === '/promo') &&
-      !getToken()
-    ) {
+    if ((to === '/account' || to === '/transaksi' || to === '/promo') && !getToken()) {
       navigate('/login');
     } else {
       navigate(to);
@@ -51,24 +43,26 @@ export default function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full border-t border-gray-200 bg-white flex justify-around py-2 z-50">
-      {navItems.map((item) => {
-        const isActive = location.pathname === item.to;
-        return (
-          <div
-            key={item.to}
-            className="flex flex-col items-center text-sm cursor-pointer"
-            onClick={() => handleNavClick(item.to)}
-          >
-            <img
-              src={isActive ? item.iconActive : item.icon}
-              alt={item.label}
-              className="h-6 w-6 mb-1"
-            />
-            <span className={isActive ? 'text-orange-500' : 'text-gray-500'}>{item.label}</span>
-          </div>
-        );
-      })}
-    </nav>
+    <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50">
+      <nav className="w-full max-w-sm border-t border-gray-200 bg-white flex justify-around py-2 shadow-lg">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.to;
+          return (
+            <div
+              key={item.to}
+              className="flex flex-col items-center text-xs cursor-pointer"
+              onClick={() => handleNavClick(item.to)}
+            >
+              <img
+                src={isActive ? item.iconActive : item.icon}
+                alt={item.label}
+                className="h-6 w-6 mb-0.5"
+              />
+              <span className={isActive ? 'text-orange-500' : 'text-gray-500'}>{item.label}</span>
+            </div>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

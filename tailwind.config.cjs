@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['"Work Sans"', 'ui-sans-serif', 'system-ui'],
+        tenor: ['"Tenor Sans"', 'sans-serif'],
       },
     },
   },

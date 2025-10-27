@@ -278,9 +278,9 @@ const ProductDetail = () => {
           ))}
         </div>
       </div>
-      <div className="p-4 sm:p-6 bg-white shadow-md mb-4">
+      <div className="p-4 bg-white shadow-md mb-4">
         <div className="flex items-start gap-2 mb-1">
-          <h1 className="text-xl font-semibold text-gray-800 font-sans">{product.item_name}</h1>
+          <h1 className="text-gray-600 mb-2 font-tenor text-[15px]">{product.item_name}</h1>
           <div className="flex items-center gap-2">
             <svg
               className="h-4 w-4 text-yellow-500"
@@ -290,17 +290,20 @@ const ProductDetail = () => {
             >
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.381-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" />
             </svg>
-            <span className="text-sm text-gray-600">4.8 Ratings</span>
+            <span className="font-tenor text-[12px] text-gray-600">4.8 Ratings</span>
           </div>
         </div>
         {selectedColor && selectedSize && (
           <div className="flex flex-col items-start">
-            <p style={{ color: COLORS.primary }} className="text-2xl  font-sans">
+            <p className="font-tenor text-[18px]" style={{ color: COLORS.primary }}>
               Rp {price.toLocaleString('id-ID')}
             </p>
           </div>
         )}
-        {product.brand && <p className="text-sm text-gray-600 mb-2">{product.brand}</p>}
+
+        {product.brand && (
+          <p className="text-gray-600 mb-2 font-tenor text-[15px]">{product.brand}</p>
+        )}
         {product.reviews && product.reviews.length > 0 && (
           <div className="flex items-center mb-4">
             <span className="text-yellow-500 flex">
@@ -322,8 +325,12 @@ const ProductDetail = () => {
         )}
       </div>
       {selectedColor && selectedSize && (
-        <div className="px-4 mb-4 flex flex-col gap-3 max-w-sm mx-auto font-sans">
-          <div className="flex justify-between items-center border rounded-md px-3 py-2 text-sm cursor-pointer min-h-[48px]">
+        <div className="px-4 mb-4 flex flex-col gap-3 max-w-sm mx-auto font-tenor">
+          {/* Klik Color */}
+          <div
+            className="flex justify-between items-center border rounded-md px-3 py-2 text-sm cursor-pointer min-h-[48px] hover:bg-gray-100 active:scale-95 transition"
+            onClick={setShowModal}
+          >
             <span className="font-medium">Color</span>
             <span className="flex items-center gap-1">
               {selectedColor}
@@ -340,7 +347,11 @@ const ProductDetail = () => {
             </span>
           </div>
 
-          <div className="flex justify-between items-center border rounded-md px-3 py-2 text-sm cursor-pointer min-h-[48px]">
+          {/* Klik Size */}
+          <div
+            className="flex justify-between items-center border rounded-md px-3 py-2 text-sm cursor-pointer min-h-[48px] hover:bg-gray-100 active:scale-95 transition"
+            onClick={setShowModal}
+          >
             <span className="font-medium">Size</span>
             <span className="flex items-center gap-1">
               {selectedSize}
@@ -358,6 +369,7 @@ const ProductDetail = () => {
           </div>
         </div>
       )}
+
       <div className="bottom-16 left-0 right-0 flex justify-center items-center px-4 z-40 gap-3">
         {/* Container icon message */}
         <div
@@ -390,7 +402,7 @@ const ProductDetail = () => {
         </button>
       </div>
       <p
-        className="text-sm text-gray-600 m-3 mt-8"
+        className="text-sm text-gray-600 m-3 mt-8 font-tenor"
         style={{ fontFamily: "'Work Sans', sans-serif" }}
       >
         {product.description}
@@ -452,12 +464,12 @@ const ProductDetail = () => {
           </div>
         ))}
       </div>
-      <h2 className="font-sans text-[20px] tracking-wide text-gray-600 m-0 mb-2 text-center">
+      <h2 className="font-tenor text-[20px] tracking-wide text-gray-600 m-0 mb-2 text-center">
         You may also like
       </h2>
 
       <div className="grid grid-cols-2 gap-4">
-        {productList.map((item) => (
+        {productList.slice(0, 4).map((item) => (
           <Link key={item.item_id} to={`/product/${item.item_id}`} className="block relative group">
             <img
               src={item.image || 'https://via.placeholder.com/200x300'}
@@ -467,7 +479,7 @@ const ProductDetail = () => {
             <button className="absolute top-2 right-2 bg-white/70 rounded-full p-1">
               <FiHeart className="text-gray-500" />
             </button>
-            <div className="mt-2">
+            <div className="mt-2 font-tenor">
               <p className="text-sm text-gray-700">{item.item_name}</p>
               <p className="font-semibold text-sm" style={{ color: COLORS.primary }}>
                 Rp.{item.price?.toLocaleString('id-ID')}
@@ -607,36 +619,10 @@ const ProductDetail = () => {
 
               <button
                 onClick={handleAddToCart}
+                style={{ backgroundColor: COLORS.primary }}
                 className="flex-1 flex justify-between items-center bg-orange-600 text-white py-3 px-4 rounded-md font-semibold text-lg hover:bg-orange-700 transition-colors duration-200"
               >
-                <span className="flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                  Tambah Keranjang
-                </span>
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
-                  />
-                </svg>
+                <span className="flex items-center gap-2">TAMBAH KE KERANJANG</span>
               </button>
             </div>
           </div>

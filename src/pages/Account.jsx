@@ -1,33 +1,42 @@
 // src/pages/Account.jsx
-import Cookies from 'js-cookie';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BottomNav from '../components/BottomNav'; // Asumsi Anda memiliki komponen BottomNav
-import Header from '../components/Header'; // Asumsi Anda memiliki komponen Header
+import BottomNav from '../components/BottomNav';
+import Header from '../components/Header';
 import { useUser } from '../hook/useUser';
+import { getToken, removeToken } from '../session/session';
 
 const Account = () => {
   const navigate = useNavigate();
-  const { user, loading, error, fetchUser } = useUser();
+  const { user, fetchUser } = useUser();
 
   useEffect(() => {
     fetchUser();
   }, []);
 
+  const handleClick = (callback) => {
+    const token = getToken('token');
+    if (!token) {
+      navigate('/login', { replace: true });
+      return;
+    }
+    if (callback) callback();
+  };
+
   const handleLogout = () => {
-    // hapus token
-    Cookies.remove('token');
-    // redirect ke login
+    removeToken('token');
     navigate('/login', { replace: true });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans pb-20">
+    <div
+      className="min-h-screen bg-gray-50 pb-20"
+      style={{ fontFamily: "'Tenor Sans', sans-serif" }}
+    >
       <Header />
-      {/* --- BAGIAN BODY PROFIL DIMULAI DI SINI --- */}
       <div className="p-4 sm:p-6 flex justify-center flex-grow">
         <div className="bg-white rounded-lg shadow-md p-5 w-full max-w-md">
-          {/* User Info Section */}
+          {/* User Info */}
           <div className="flex flex-col items-center mb-8">
             <img
               src={user?.profile?.profile_picture || 'https://picsum.photos/seed/picsum/200/300'}
@@ -38,212 +47,75 @@ const Account = () => {
             <p className="text-sm text-gray-600">{user?.email || '-'}</p>
           </div>
 
-          {/* PROFILE Menu */}
+          {/* PROFILE */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2">
               PROFILE
             </h3>
             <ProfileMenuItem
-              onClick={() => navigate('/profile')}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/profile'))}
+              icon={iconUser}
               text="Ubah Profile"
             />
             <ProfileMenuItem
-              onClick={() => navigate('/address')}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/address'))}
+              icon={iconAddress}
               text="Alamat"
             />
             <ProfileMenuItem
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/wishlist'))}
+              icon={iconHeart}
               text="Wishlist"
             />
           </div>
 
-          {/* MEMBERSHIP & LOYALTY Menu */}
+          {/* MEMBERSHIP */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2">
               MEMBERSHIP & LOYALTY
             </h3>
             <ProfileMenuItem
-              onClick={() => navigate('/membership')}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/membership'))}
+              icon={iconCard}
               text="Lihat Status dan Point Loyalty"
             />
             <ProfileMenuItem
-              onClick={() => navigate('/point')}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/point'))}
+              icon={iconWallet}
               text="Tukar Point"
             />
             <ProfileMenuItem
-              onClick={() => navigate('/voucher')}
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 5v2m0 4v2m0 4v2M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/voucher'))}
+              icon={iconVoucher}
               text="Voucher Saya"
             />
           </div>
 
-          {/* BANTUAN Menu */}
+          {/* BANTUAN */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2">
               BANTUAN
             </h3>
             <ProfileMenuItem
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8.228 9.247a8.672 8.672 0 00-1.658.591 1.05 1.05 0 01-1.05-.119L3 10.662A2 2 0 001 12.484V15a2 2 0 002 2h2.242a2 2 0 001.052.119 8.672 8.672 0 001.658-.591m4.34-9.247a8.672 8.672 0 01-1.658-.591 1.05 1.05 0 00-1.05-.119L11 2.516A2 2 0 009 4.338V7a2 2 0 002 2h2.242a2 2 0 001.052.119M19.34 9.247a8.672 8.672 0 01-1.658.591 1.05 1.05 0 00-1.05-.119L15 10.662A2 2 0 0013 12.484V15a2 2 0 002 2h2.242a2 2 0 001.052.119M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/faq'))}
+              icon={iconFAQ}
               text="FAQ"
             />
             <ProfileMenuItem
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/support'))}
+              icon={iconHelp}
               text="Dukungan Pelanggan"
             />
             <ProfileMenuItem
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3 text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              }
+              onClick={() => handleClick(() => navigate('/about'))}
+              icon={iconInfo}
               text="Tentang Aplikasi"
             />
           </div>
 
-          {/* Logout Button */}
+          {/* LOGOUT */}
           <button
-            onClick={handleLogout}
+            onClick={() => handleClick(handleLogout)}
             className="w-full bg-white text-orange-600 border border-orange-600 py-3 rounded-lg font-semibold hover:bg-orange-50 hover:text-white transition-colors duration-200"
           >
             Keluar
@@ -255,7 +127,7 @@ const Account = () => {
   );
 };
 
-// Komponen Pembantu untuk Item Menu Profil
+// ITEM
 const ProfileMenuItem = ({ icon, text, onClick }) => (
   <div
     onClick={onClick}
@@ -264,6 +136,166 @@ const ProfileMenuItem = ({ icon, text, onClick }) => (
     {icon}
     <span>{text}</span>
   </div>
+);
+
+// ICONS
+const iconUser = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+    />
+  </svg>
+);
+
+const iconAddress = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+  </svg>
+);
+
+const iconHeart = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+    />
+  </svg>
+);
+
+const iconCard = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"
+    />
+  </svg>
+);
+
+const iconWallet = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+    />
+  </svg>
+);
+
+const iconVoucher = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 5v2m0 4v2m0 4v2M3 12l2-2m0 0l7-7 7 7"
+    />
+  </svg>
+);
+
+const iconFAQ = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M8.228 9.247a8.672 8.672 0 00-1.658.591L3 10.662A2 2 0 001 12.484V15a2 2 0 002 2h2.242a2 2 0 001.052.119"
+    />
+  </svg>
+);
+
+const iconHelp = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+);
+
+const iconInfo = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-3 text-gray-500"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
 );
 
 export default Account;

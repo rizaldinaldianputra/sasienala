@@ -35,7 +35,7 @@ export default function BottomNav() {
   ];
 
   const handleNavClick = (to) => {
-    if ((to === '/account' || to === '/transaksi' || to === '/promo') && !getToken()) {
+    if ((to === '/transaksi' || to === '/promo') && !getToken()) {
       navigate('/login');
     } else {
       navigate(to);

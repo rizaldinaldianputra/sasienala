@@ -1,50 +1,25 @@
-import { useEffect, useState } from 'react';
+// src/components/Header.jsx
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from '../hook/useProduct';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState();
-  const { fetchCategories } = useProducts(false); // false biar tidak auto-fetch semua produk
+  const [activeTab, setActiveTab] = useState('WOMEN');
   const navigate = useNavigate();
 
-  const handleCartClick = () => navigate('/cart');
-  const handleCartSearch = () => navigate('/product');
-
-  const handleCategorySelect = (id) => {
-    if (selectedCategory === id) {
-      setSelectedCategory(null);
-    } else {
-      setSelectedCategory(id);
-    }
+  const menuItems = {
+    WOMEN: ['New', 'Apparel', 'Bag', 'Shoes', 'Beauty'],
+    MAN: ['New', 'Apparel', 'Bag', 'Shoes', 'Accessories'],
+    KIDS: ['New', 'Apparel', 'Toys', 'Shoes', 'School Supplies'],
   };
 
-  useEffect(() => {
-    const cachedCategories = localStorage.getItem('categories');
+  const handleCartClick = () => {
+    navigate('/cart');
+  };
 
-    if (cachedCategories) {
-      setCategories(JSON.parse(cachedCategories));
-    } else {
-      let isMounted = true;
-      const getCategories = async () => {
-        try {
-          const cats = await fetchCategories();
-          if (isMounted) {
-            setCategories(cats || []);
-            localStorage.setItem('categories', JSON.stringify(cats || []));
-          }
-        } catch (err) {
-          console.error('Gagal ambil kategori', err);
-          if (isMounted) setCategories([]);
-        }
-      };
-      getCategories();
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [fetchCategories]);
+  const handleCartSearch = () => {
+    navigate('/product');
+  };
 
   return (
     <>
@@ -52,9 +27,16 @@ export default function Header() {
       <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-2">
           <button className="text-gray-700" onClick={() => setIsOpen(true)}>
-            <img src="/menu.svg" alt="menu" className="w-6 h-6" />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
           </button>
-          <img src="/logo.svg" alt="SASIENALA" className="h-10" />
+          <img src="/logo.png" alt="SASIENALA" className="h-10" />
         </div>
 
         <div className="flex items-center space-x-4">
@@ -72,37 +54,35 @@ export default function Header() {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)}></div>
-
           <div className="relative w-72 bg-white h-full shadow-xl p-4 overflow-y-auto">
-            <button
-              className="mb-4 text-gray-700 text-lg font-bold"
-              onClick={() => setIsOpen(false)}
-            >
+            <button className="mb-4 text-gray-700" onClick={() => setIsOpen(false)}>
               ✕
             </button>
 
-            {/* Categories list */}
-            <ul className="space-y-2 mb-4">
-              {categories.length > 0 ? (
-                categories.map((cat) => (
-                  <li
-                    key={cat?.category_id}
-                    className={`flex justify-between items-center px-4 py-2 rounded cursor-pointer ${
-                      selectedCategory === cat?.category_id
-                        ? 'bg-orange-100 text-orange-500 font-semibold'
-                        : 'hover:bg-gray-100'
-                    }`}
-                    onClick={() => handleCategorySelect(cat?.category_id)}
-                  >
-                    {cat?.display_category_name} <span>⌄</span>
-                  </li>
-                ))
-              ) : (
-                <li className="px-4 py-2 text-gray-400">Loading categories...</li>
-              )}
+            <div className="flex space-x-4 mb-4 border-b">
+              {['WOMEN', 'MAN', 'KIDS'].map((tab) => (
+                <button
+                  key={tab}
+                  className={`pb-1 font-semibold ${
+                    activeTab === tab
+                      ? 'border-b-2 border-orange-400 text-orange-400'
+                      : 'text-gray-400'
+                  }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <ul className="space-y-2 text-gray-700 text-sm">
+              {menuItems[activeTab].map((item) => (
+                <li key={item} className="flex justify-between items-center">
+                  {item} <span>⌄</span>
+                </li>
+              ))}
             </ul>
 
-            {/* Lain-lain */}
             <div className="mt-6 space-y-2 text-orange-400 text-sm">
               <div>Campaign</div>
               <div>Event and Blog</div>

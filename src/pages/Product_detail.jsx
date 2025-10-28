@@ -12,15 +12,32 @@ import { getToken, getUserId } from '../session/session';
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+
+  // ====== Hooks & State ======
   const [searchKey, setSearchKey] = useState('');
   const [searchHistory, setSearchHistory] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [localProducts, setLocalProducts] = useState([]);
 
-  const { data, loading, error, searchProduct, refetch, fetchProductsByCategory } = useProducts();
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [imageList, setImageList] = useState([]);
+  const [stock, setStock] = useState(0);
+  const [price, setPrice] = useState(0);
 
-  // ambil kategori produk
+  const [showModal, setShowModal] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+
+  const imageContainerRef = useRef();
+  const fetchedRef = useRef(false);
+
+  const { data, loading, error, searchProduct, refetch, fetchProductsByCategory } = useProducts();
+  const { product, fetchProductById } = useProducts(false);
+  const { addCartItem } = useCart();
+
+  // ====== Fetch kategori produk ======
   useEffect(() => {
     productService
       .getProductCategory()
@@ -28,7 +45,72 @@ const ProductDetail = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  // Fungsi untuk ambil product list sesuai kondisi
+  // ====== Ambil product by id ======
+  useEffect(() => {
+    if (!id || fetchedRef.current) return;
+    fetchProductById(Number(id));
+    fetchedRef.current = true;
+  }, [id]);
+
+  // ====== Set default color, size, stock, price, image list ======
+  useEffect(() => {
+    if (product) {
+      if (product.model_list && product.model_list.length > 0) {
+        const defaultColor = product.model_list[0].color;
+        setSelectedColor(defaultColor);
+
+        if (product.model_list[0].size_list.length > 0) {
+          const defaultSize = product.model_list[0].size_list[0].size;
+          setSelectedSize(defaultSize);
+
+          const defaultSizeModel = product.model_list[0].size_list[0];
+          setStock(defaultSizeModel.stock || 0);
+          setPrice(defaultSizeModel.price || 0);
+        }
+      }
+
+      if (product.image_list && product.image_list.length > 0) {
+        setImageList(product.image_list);
+        setSelectedImage(0);
+      }
+    }
+  }, [product]);
+
+  // ====== Update imageList dan size saat color berubah ======
+  useEffect(() => {
+    if (selectedColor && product?.model_list) {
+      const colorModel = product.model_list.find((m) => m.color === selectedColor);
+
+      if (colorModel && colorModel.image) {
+        setImageList([
+          colorModel.image,
+          ...product.image_list.filter((img) => img !== colorModel.image),
+        ]);
+        setSelectedImage(0);
+
+        if (colorModel.size_list.length > 0) {
+          setSelectedSize(colorModel.size_list[0].size);
+          setStock(colorModel.size_list[0].stock || 0);
+          setPrice(colorModel.size_list[0].price || 0);
+        }
+      }
+    }
+  }, [selectedColor, product]);
+
+  // ====== Update stock & price saat size berubah ======
+  useEffect(() => {
+    if (selectedColor && selectedSize && product?.model_list) {
+      const colorModel = product.model_list.find((m) => m.color === selectedColor);
+      if (!colorModel) return;
+      const sizeModel = colorModel.size_list.find((s) => s.size === selectedSize);
+      if (!sizeModel) return;
+
+      setStock(sizeModel.stock || 0);
+      setPrice(sizeModel.price || 0);
+    }
+  }, [selectedSize, selectedColor, product]);
+
+  // ====== Fungsi ambil product list sesuai kondisi ======
   const getProductList = async (options = {}) => {
     const { search = '', categoryId = null } = options;
 
@@ -50,6 +132,7 @@ const ProductDetail = () => {
     }
   };
 
+  // ====== Handler search submit ======
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const key = searchKey.trim();
@@ -69,100 +152,21 @@ const ProductDetail = () => {
   };
 
   const productList = selectedCategory ? localProducts : data?.data ?? [];
-  const { product, fetchProductById } = useProducts(false);
-  const { addCartItem } = useCart();
 
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [imageList, setImageList] = useState([]);
-  const [stock, setStock] = useState(0);
-  const [price, setPrice] = useState(0);
-
-  const [showModal, setShowModal] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-
-  const fetchedRef = useRef(false);
-
-  useEffect(() => {
-    if (!id || fetchedRef.current) return;
-    fetchProductById(Number(id));
-    fetchedRef.current = true;
-  }, [id]);
-
-  useEffect(() => {
-    if (product) {
-      if (product.model_list && product.model_list.length > 0) {
-        const defaultColor = product.model_list[0].color;
-        setSelectedColor(defaultColor);
-
-        if (product.model_list[0].size_list.length > 0) {
-          const defaultSize = product.model_list[0].size_list[0].size;
-          setSelectedSize(defaultSize);
-
-          const defaultSizeModel = product.model_list[0].size_list[0];
-          setStock(defaultSizeModel.stock || 0);
-          setPrice(defaultSizeModel.price || 0);
-        }
-      }
-      if (product.image_list && product.image_list.length > 0) {
-        setImageList(product.image_list);
-        setSelectedImage(0);
+  // ====== Handle fullscreen image ======
+  const handleFullscreen = () => {
+    if (imageContainerRef.current) {
+      if (imageContainerRef.current.requestFullscreen) {
+        imageContainerRef.current.requestFullscreen();
+      } else if (imageContainerRef.current.webkitRequestFullscreen) {
+        imageContainerRef.current.webkitRequestFullscreen();
+      } else if (imageContainerRef.current.msRequestFullscreen) {
+        imageContainerRef.current.msRequestFullscreen();
       }
     }
-  }, [product]);
+  };
 
-  useEffect(() => {
-    if (selectedColor && product?.model_list) {
-      const colorModel = product.model_list.find((m) => m.color === selectedColor);
-
-      if (colorModel && colorModel.image) {
-        setImageList([
-          colorModel.image,
-          ...product.image_list.filter((img) => img !== colorModel.image),
-        ]);
-        setSelectedImage(0);
-
-        if (colorModel.size_list.length > 0) {
-          setSelectedSize(colorModel.size_list[0].size);
-          setStock(colorModel.size_list[0].stock || 0);
-          setPrice(colorModel.size_list[0].price || 0);
-        }
-      }
-    }
-  }, [selectedColor, product]);
-
-  useEffect(() => {
-    if (selectedColor && selectedSize && product?.model_list) {
-      const colorModel = product.model_list.find((m) => m.color === selectedColor);
-      if (!colorModel) return;
-      const sizeModel = colorModel.size_list.find((s) => s.size === selectedSize);
-      if (!sizeModel) return;
-
-      setStock(sizeModel.stock || 0);
-      setPrice(sizeModel.price || 0);
-    }
-  }, [selectedSize, selectedColor, product]);
-
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        Loading product...
-      </div>
-    );
-  if (error)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500">
-        {error}
-      </div>
-    );
-  if (!product) return null;
-
-  const averageRating =
-    product.reviews && product.reviews.length > 0
-      ? product.reviews.reduce((acc, review) => acc + review.rating, 0) / product.reviews.length
-      : 0;
-
+  // ====== Handle add to cart ======
   const handleAddToCart = async () => {
     const token = getToken();
     if (!token) {
@@ -206,8 +210,6 @@ const ProductDetail = () => {
 
     try {
       const result = await addCartItem(userId, product.item_id, sizeModel.model_id, quantity);
-
-      // Tutup modal dulu
       setShowModal(false);
 
       if (result.success) {
@@ -221,6 +223,7 @@ const ProductDetail = () => {
     }
   };
 
+  // ====== Dummy reviews ======
   const dummyReviews = [
     {
       username: 'p******g',
@@ -248,16 +251,38 @@ const ProductDetail = () => {
       helpful: 45,
     },
   ];
+
+  // ====== Conditional render loading/error ======
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        Loading product...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500">
+        {error}
+      </div>
+    );
+  if (!product) return null;
+
+  const averageRating =
+    product.reviews && product.reviews.length > 0
+      ? product.reviews.reduce((acc, review) => acc + review.rating, 0) / product.reviews.length
+      : 0;
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-20">
       <Header />
       {imageList.length > 0 && (
-        <div className="relative bg-white">
-          <img
-            src={imageList[selectedImage]}
-            alt={product.item_name}
-            className="w-full h-80 object-cover"
-          />
+        <div className="relative bg-white" ref={imageContainerRef}>
+          <img src={imageList[selectedImage]} alt={product.item_name} className="w-full h-auto" />
+          <button
+            onClick={handleFullscreen}
+            className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full border border-black/50 bg-black/50 hover:bg-black/70"
+          >
+            <img src="/resize.png" alt="Fullscreen" className="w-5 h-5" />
+          </button>
         </div>
       )}
       <div className="overflow-x-auto py-2">
@@ -459,11 +484,7 @@ const ProductDetail = () => {
       <div className="grid grid-cols-2 gap-4">
         {productList.map((item) => (
           <Link key={item.item_id} to={`/product/${item.item_id}`} className="block relative group">
-            <img
-              src={item.image || 'https://via.placeholder.com/200x300'}
-              alt={item.item_name}
-              className="w-full rounded-xl object-cover"
-            />
+            <img src={item.image || 'https://via.placeholder.com/200x300'} alt={item.item_name} />
             <button className="absolute top-2 right-2 bg-white/70 rounded-full p-1">
               <FiHeart className="text-gray-500" />
             </button>

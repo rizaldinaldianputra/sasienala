@@ -146,7 +146,6 @@ const Product = () => {
                 <img
                   src={item.image || 'https://via.placeholder.com/200x300'}
                   alt={item.item_name}
-                  className="w-full rounded-xl object-cover"
                 />
                 <button className="absolute top-2 right-2 bg-white/70 rounded-full p-1">
                   <FiHeart className="text-gray-500" />

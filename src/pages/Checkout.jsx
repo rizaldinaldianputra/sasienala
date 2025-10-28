@@ -92,7 +92,7 @@ const Checkout = () => {
           note: 'note',
         })),
         courier_name: selectedCourier?.courier_name || '',
-        courier_service: selectedCourier?.courier_code || '',
+        courier_service: selectedCourier?.service || '',
         shipping_cost: selectedCourier?.cost || 0,
       });
     }
@@ -157,7 +157,7 @@ const Checkout = () => {
   };
 
   return (
-    <div className="font-sans max-w-md mx-auto border border-gray-200 rounded-lg overflow-hidden bg-white pb-20 relative">
+    <div className="font-['Tenor_Sans'] max-w-md mx-auto border border-gray-200 rounded-lg overflow-hidden bg-white pb-20 relative">
       <header className="flex items-center p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
         <button className="text-2xl cursor-pointer mr-4 text-gray-700" onClick={() => navigate(-1)}>
           ←

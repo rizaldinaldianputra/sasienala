@@ -1,5 +1,6 @@
+// Chat.jsx
 import { useState } from 'react';
-import BottomNav from '../components/BottomNav';
+import BottomNavSearch from '../components/BottomNavWithSearch';
 import Header from '../components/Header';
 import { COLORS } from '../constants/colors';
 import { useCart } from '../hook/useCart';
@@ -8,25 +9,20 @@ import { getUserId } from '../session/session';
 
 const Chat = ({ userId }) => {
   const { chats, sendMessage, setChats } = useChatBot(userId);
-  const [input, setInput] = useState('');
   const { addCartItem } = useCart();
   const [isOpen, setIsOpen] = useState(true);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSend = async (message) => {
+    if (!message.trim()) return;
 
     const tempMessage = {
       id: Date.now(),
       role: 'user',
-      content: input,
+      content: message,
     };
 
-    // Tambahkan pesan user ke chat list di UI
     setChats((prev) => [...prev, tempMessage]);
-
-    const messageToSend = input;
-    setInput('');
-    await sendMessage(messageToSend); // sendMessage hanya menambahkan assistant message
+    await sendMessage(message); // assistant message ditambahkan di sini
   };
 
   const handleAddToCart = async (productId, sizeId) => {
@@ -38,7 +34,7 @@ const Chat = ({ userId }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans pb-20">
+    <div className="min-h-screen bg-white font-sans pb-24 relative">
       <Header />
 
       <div className="max-w-3xl mx-auto my-6 relative">
@@ -66,14 +62,13 @@ const Chat = ({ userId }) => {
         </div>
       </div>
 
-      <div className="px-4 text-center my-6">
-        <p className="text-gray-600">
-          HAI RINA 💕, WELCOME TO SASIENALA!
-          <br />
-          Lagi Cari Kemeja Basic atau Apa Nih ?<br />
-          Boleh Minsie Bantuin yaa.... 🌷
-        </p>
-      </div>
+      <p className="text-gray-600 font-work-sans text-[13px] text-center">
+        HAI SASSYFRIEND 💕, WELCOME TO SASIENALA!
+      </p>
+      <p className="text-gray-400 font-work-sans text-[13px] text-center mb-4">
+        Lagi Cari Kemeja Basic atau Apa Nih ?<br />
+        Boleh Minsie Bantuin yaa.... 🌷
+      </p>
 
       {isOpen && (
         <div className="px-4 space-y-4">
@@ -111,33 +106,7 @@ const Chat = ({ userId }) => {
                         <p className="text-orange-500 font-bold">
                           Rp {r.payload.price?.toLocaleString('id-ID')}
                         </p>
-
-                        {r.payload.color && (
-                          <div className="flex gap-1 my-2 items-center">
-                            <span className="text-sm">Warna:</span>
-                            <div
-                              className="w-5 h-5 rounded border"
-                              style={{ backgroundColor: r.payload.color }}
-                            ></div>
-                          </div>
-                        )}
-
-                        {r.payload.size && (
-                          <div className="my-2">
-                            <label className="text-sm mr-2">Ukuran:</label>
-                            <select className="border px-2 py-1 rounded">
-                              <option value={r.payload.size}>{r.payload.size}</option>
-                            </select>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2 my-2">
-                          <button className="px-2 py-1 border rounded">-</button>
-                          <span>1</span>
-                          <button className="px-2 py-1 border rounded">+</button>
-                          <span className="text-sm text-gray-500 ml-2">sisa {r.payload.stock}</span>
-                        </div>
-
+                        {/* ... warna, ukuran, stok ... */}
                         <button
                           onClick={() => handleAddToCart(r.payload.item_id, r.payload.model_id)}
                           className="bg-orange-500 text-white w-full py-2 rounded mt-2 hover:bg-orange-600"
@@ -151,31 +120,9 @@ const Chat = ({ userId }) => {
           ))}
         </div>
       )}
-      <div className="h-[100px] bg-white font-sans flex flex-row justify-between items-center px-4">
-        <input
-          type="text"
-          className="flex-1 border rounded-full px-4 py-2 focus:outline-none"
-          placeholder="Tulis pesan kamu.."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-        />
-        <button
-          className="bg-gray-300 p-3 rounded-full hover:bg-gray-400 ml-2 flex items-center justify-center"
-          onClick={handleSend}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 text-black"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-          </svg>
-        </button>
-      </div>
 
-      <BottomNav />
+      {/* BottomNav + input chat */}
+      <BottomNavSearch onSubmit={handleSend} />
     </div>
   );
 };

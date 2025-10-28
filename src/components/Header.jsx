@@ -1,42 +1,44 @@
-// src/components/Header.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useProducts } from '../hook/useProduct';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('WOMEN');
+  const [categories, setCategories] = useState();
+  const [selectedCategory, setSelectedCategory] = useState();
+  const { fetchCategories } = useProducts(false); // false biar tidak auto-fetch semua produk
   const navigate = useNavigate();
 
-  const menuItems = {
-    WOMEN: ['New', 'Apparel', 'Bag', 'Shoes', 'Beauty'],
-    MAN: ['New', 'Apparel', 'Bag', 'Shoes', 'Accessories'],
-    KIDS: ['New', 'Apparel', 'Toys', 'Shoes', 'School Supplies'],
+  const handleCartClick = () => navigate('/cart');
+  const handleCartSearch = () => navigate('/product');
+
+  // ketika klik kategori, langsung ke product page dengan categoryId
+  const handleCategorySelect = (id) => {
+    setIsOpen(false); // tutup drawer
+    navigate('/product', { state: { categoryId: id } });
   };
 
-  const handleCartClick = () => {
-    navigate('/cart');
-  };
-
-  const handleCartSearch = () => {
-    navigate('/product');
-  };
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const cats = await fetchCategories();
+        setCategories(cats || []);
+      } catch (err) {
+        console.error('Gagal ambil kategori', err);
+        setCategories([]);
+      }
+    };
+    getCategories();
+  }, [fetchCategories]);
 
   return (
     <>
-      {/* Header sticky di atas */}
       <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-2">
           <button className="text-gray-700" onClick={() => setIsOpen(true)}>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            <img src="/menu.svg" alt="menu" className="w-6 h-6" />
           </button>
-          <img src="/logo.png" alt="SASIENALA" className="h-10" />
+          <img src="/logo.svg" alt="SASIENALA" className="h-10" />
         </div>
 
         <div className="flex items-center space-x-4">
@@ -50,35 +52,26 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Drawer */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)}></div>
+
           <div className="relative w-72 bg-white h-full shadow-xl p-4 overflow-y-auto">
-            <button className="mb-4 text-gray-700" onClick={() => setIsOpen(false)}>
+            <button
+              className="mb-4 text-gray-700 text-lg font-bold"
+              onClick={() => setIsOpen(false)}
+            >
               ✕
             </button>
 
-            <div className="flex space-x-4 mb-4 border-b">
-              {['WOMEN', 'MAN', 'KIDS'].map((tab) => (
-                <button
-                  key={tab}
-                  className={`pb-1 font-semibold ${
-                    activeTab === tab
-                      ? 'border-b-2 border-orange-400 text-orange-400'
-                      : 'text-gray-400'
-                  }`}
-                  onClick={() => setActiveTab(tab)}
+            <ul className="space-y-2 mb-4">
+              {(categories || []).map((cat) => (
+                <li
+                  key={cat?.category_id}
+                  className="flex justify-between items-center px-4 py-2 rounded cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleCategorySelect(cat?.category_id)}
                 >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            <ul className="space-y-2 text-gray-700 text-sm">
-              {menuItems[activeTab].map((item) => (
-                <li key={item} className="flex justify-between items-center">
-                  {item} <span>⌄</span>
+                  {cat?.display_category_name} <span>⌄</span>
                 </li>
               ))}
             </ul>

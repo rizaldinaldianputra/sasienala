@@ -93,7 +93,7 @@ const ProductDetail = () => {
   useEffect(() => {
     if (product) {
       if (product.model_list && product.model_list.length > 0) {
-        const defaultColor = product.model_list[0].color_code || product.model_list[0].color;
+        const defaultColor = product.model_list[0].color;
         setSelectedColor(defaultColor);
 
         if (product.model_list[0].size_list.length > 0) {
@@ -114,9 +114,8 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (selectedColor && product?.model_list) {
-      const colorModel = product.model_list.find(
-        (m) => (m.color_code || m.color) === selectedColor,
-      );
+      const colorModel = product.model_list.find((m) => m.color === selectedColor);
+
       if (colorModel && colorModel.image) {
         setImageList([
           colorModel.image,
@@ -135,9 +134,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (selectedColor && selectedSize && product?.model_list) {
-      const colorModel = product.model_list.find(
-        (m) => (m.color_code || m.color) === selectedColor,
-      );
+      const colorModel = product.model_list.find((m) => m.color === selectedColor);
       if (!colorModel) return;
       const sizeModel = colorModel.size_list.find((s) => s.size === selectedSize);
       if (!sizeModel) return;
@@ -183,7 +180,7 @@ const ProductDetail = () => {
       return;
     }
 
-    const colorModel = product.model_list.find((m) => (m.color_code || m.color) === selectedColor);
+    const colorModel = product.model_list.find((m) => m.color === selectedColor);
     if (!colorModel) {
       alert('Pilihan warna tidak valid');
       return;
@@ -278,7 +275,7 @@ const ProductDetail = () => {
           ))}
         </div>
       </div>
-      <div className="p-4 bg-white shadow-md mb-4">
+      <div className="p-4 bg-white mb-4">
         <div className="flex items-start gap-2 mb-1">
           <h1 className="text-gray-600 mb-2 font-tenor text-[15px]">{product.item_name}</h1>
           <div className="flex items-center gap-2">
@@ -373,40 +370,28 @@ const ProductDetail = () => {
       <div className="bottom-16 left-0 right-0 flex justify-center items-center px-4 z-40 gap-3">
         {/* Container icon message */}
         <div
-          className="bg-gray-200 p-3 flex items-center justify-center shadow-md cursor-pointer"
+          className=" p-3 flex items-center justify-center shadow-md cursor-pointer"
           onClick={() => navigate('/')}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-700"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.96 9.96 0 01-4.938-1.375L3 20l1.375-4.938A9.96 9.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
+          <img src="/chat_product.png" alt="Chat" className="w-6 h-6 object-contain" />
         </div>
 
         {/* Tombol tambah ke keranjang */}
-        <button
-          onClick={() => setShowModal(true)}
-          style={{ backgroundColor: COLORS.primary }}
-          className="flex-1 text-white py-3 rounded-md font-semibold text-lg hover:brightness-90 transition-colors duration-200 shadow-md"
-        >
-          Tambah ke Keranjang
+        <button onClick={() => setShowModal(true)}>
+          <img
+            src="/cart.png" // ganti dengan path image kamu
+            alt="Tambah ke Keranjang"
+            className="w-full h-full object-cover rounded-md"
+          />
         </button>
       </div>
       <p
-        className="text-sm text-gray-600 m-3 mt-8 font-tenor"
+        className="text-base leading-relaxed text-gray-600 m-3 mt-8 font-tenor whitespace-pre-line"
         style={{ fontFamily: "'Work Sans', sans-serif" }}
       >
         {product.description}
       </p>
+
       <div className="p-4 bg-white mb-4 rounded-md shadow-md font-sans">
         <h2 className="font-sans text-base tracking-wide text-gray-600 m-0 mb-2">
           ULASAN DI MARKETPLACE
@@ -464,12 +449,15 @@ const ProductDetail = () => {
           </div>
         ))}
       </div>
-      <h2 className="font-tenor text-[20px] tracking-wide text-gray-600 m-0 mb-2 text-center">
+      <h1
+        className="font-tenor text-[18px] text-gray-600 text-center mb-2"
+        style={{ lineHeight: '40px', letterSpacing: '4px' }}
+      >
         You may also like
-      </h2>
+      </h1>
 
       <div className="grid grid-cols-2 gap-4">
-        {productList.slice(0, 4).map((item) => (
+        {productList.map((item) => (
           <Link key={item.item_id} to={`/product/${item.item_id}`} className="block relative group">
             <img
               src={item.image || 'https://via.placeholder.com/200x300'}
@@ -479,12 +467,20 @@ const ProductDetail = () => {
             <button className="absolute top-2 right-2 bg-white/70 rounded-full p-1">
               <FiHeart className="text-gray-500" />
             </button>
-            <div className="mt-2 font-tenor">
-              <p className="text-sm text-gray-700">{item.item_name}</p>
-              <p className="font-semibold text-sm" style={{ color: COLORS.primary }}>
+            <div className="mt-2">
+              <p className="text-[12px] leading-[18px] tracking-[0px] text-gray-700 font-['Tenor_Sans'] font-normal">
+                {item.item_name}
+              </p>
+              <p
+                className="text-[14px] leading-[24px] font-normal font-['Tenor_Sans']"
+                style={{ color: COLORS.primary }}
+              >
                 Rp.{item.price?.toLocaleString('id-ID')}
               </p>
-              <p className="text-xs text-gray-500">⭐ {item.rating ?? 0} Ratings</p>
+
+              <p className="text-[12px] font-normal font-['Tenor_Sans'] text-gray-500">
+                ⭐ {item.rating ?? 0} Ratings
+              </p>
             </div>
           </Link>
         ))}
@@ -510,8 +506,7 @@ const ProductDetail = () => {
               <div className="flex items-start gap-4 mb-4">
                 <img
                   src={
-                    product.model_list.find((m) => (m.color_code || m.color) === selectedColor)
-                      ?.image || imageList[0]
+                    product.model_list.find((m) => m.color === selectedColor)?.image || imageList[0]
                   }
                   alt="Preview"
                   className="w-32 h-32 object-cover rounded-md border"
@@ -544,7 +539,7 @@ const ProductDetail = () => {
               <h3 className="text-sm font-semibold text-gray-700 mb-2">Warna</h3>
               <div className="flex flex-wrap gap-2">
                 {product.model_list.map((color) => {
-                  const colorKey = color.color_code || color.color;
+                  const colorKey = color.color;
                   return (
                     <button
                       key={colorKey}
@@ -600,29 +595,22 @@ const ProductDetail = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="flex-shrink-0 bg-gray-100 text-gray-800 p-3 rounded-md hover:bg-gray-200 transition-colors duration-200">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8-1.657 0-3.209-.402-4.5-1.09L3 21l1.09-4.5C3.402 15.209 3 13.657 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-              </button>
+              <div
+                className=" p-3 flex items-center justify-center shadow-md cursor-pointer"
+                onClick={() => navigate('/')}
+              >
+                <img src="/chat_product.png" alt="Chat" className="w-6 h-6 object-contain" />
+              </div>
 
               <button
                 onClick={handleAddToCart}
-                style={{ backgroundColor: COLORS.primary }}
-                className="flex-1 flex justify-between items-center bg-orange-600 text-white py-3 px-4 rounded-md font-semibold text-lg hover:bg-orange-700 transition-colors duration-200"
+                className="flex-1 flex justify-center items-center py-3 px-4 rounded-md hover:brightness-90 transition-shadow duration-200"
               >
-                <span className="flex items-center gap-2">TAMBAH KE KERANJANG</span>
+                <img
+                  src="/cart.png"
+                  alt="Tambah ke Keranjang"
+                  className="w-full h-12 object-cover"
+                />
               </button>
             </div>
           </div>

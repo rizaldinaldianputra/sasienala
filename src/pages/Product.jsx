@@ -68,6 +68,30 @@ const Product = () => {
 
       <div className="min-h-screen bg-white p-4">
         {/* Search */}
+        <p className="p-2 pl-3 flex space-x-3 text-[18px] leading-[106%] font-normal font-['Tenor_Sans'] text-gray-800">
+          Categories
+        </p>
+
+        {/* Category Tabs */}
+        <div className=" flex space overflow-x-auto mb-4 pb-2 scrollbar-hide">
+          {categories.map((cat) => (
+            <div
+              key={cat.category_id}
+              onClick={() => handleCategorySelect(cat.category_id)}
+              className="cursor-pointer px-4 py-2 text-[13px] leading-[16px] font-normal font-['Tenor_Sans'] whitespace-nowrap border-b-2"
+              style={{
+                color: selectedCategory === cat.category_id ? COLORS.primary : '#374151',
+                borderBottom:
+                  selectedCategory === cat.category_id
+                    ? `2px solid ${COLORS.primary}`
+                    : '2px solid transparent',
+              }}
+            >
+              {cat.display_category_name}
+            </div>
+          ))}
+        </div>
+
         <form onSubmit={handleSearchSubmit}>
           <div className="flex items-center bg-gray-100 rounded-full px-3 py-2 mb-3">
             <FiFilter className="text-gray-500 mr-2" />
@@ -100,26 +124,6 @@ const Product = () => {
           </div>
         )}
 
-        {/* Category Tabs */}
-        <div className="flex space-x-3 overflow-x-auto mb-4 pb-2 scrollbar-hide">
-          {categories.map((cat) => (
-            <div
-              key={cat.category_id}
-              onClick={() => handleCategorySelect(cat.category_id)}
-              className="cursor-pointer px-4 py-2 text-md whitespace-nowrap border-b-2"
-              style={{
-                color: selectedCategory === cat.category_id ? COLORS.primary : '#374151',
-                borderBottom:
-                  selectedCategory === cat.category_id
-                    ? `2px solid ${COLORS.primary}`
-                    : '2px solid transparent',
-              }}
-            >
-              {cat.display_category_name}
-            </div>
-          ))}
-        </div>
-
         {/* Loading Spinner */}
         {loading && (
           <div className="flex justify-center items-center h-40">
@@ -148,11 +152,19 @@ const Product = () => {
                   <FiHeart className="text-gray-500" />
                 </button>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-700">{item.item_name}</p>
-                  <p className="font-semibold text-sm" style={{ color: COLORS.primary }}>
+                  <p className="text-[12px] leading-[18px] tracking-[0px] text-gray-700 font-['Tenor_Sans'] font-normal">
+                    {item.item_name}
+                  </p>
+                  <p
+                    className="text-[14px] leading-[24px] font-normal font-['Tenor_Sans']"
+                    style={{ color: COLORS.primary }}
+                  >
                     Rp.{item.price?.toLocaleString('id-ID')}
                   </p>
-                  <p className="text-xs text-gray-500">⭐ {item.rating ?? 0} Ratings</p>
+
+                  <p className="text-[12px] font-normal font-['Tenor_Sans'] text-gray-500">
+                    ⭐ {item.rating ?? 0} Ratings
+                  </p>
                 </div>
               </Link>
             ))}

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
+import { COLORS } from '../constants/colors';
 import { useUser } from '../hook/useUser';
 import { getToken, removeToken } from '../session/session';
 
@@ -29,13 +30,10 @@ const Account = () => {
   };
 
   return (
-    <div
-      className="min-h-screen bg-gray-50 pb-20"
-      style={{ fontFamily: "'Tenor Sans', sans-serif" }}
-    >
+    <div className="min-h-screen " style={{ fontFamily: "'Tenor Sans', sans-serif" }}>
       <Header />
       <div className="p-4 sm:p-6 flex justify-center flex-grow">
-        <div className="bg-white rounded-lg shadow-md p-5 w-full max-w-md">
+        <div className="bg-white rounded-lg  p-5 w-full max-w-md">
           {/* User Info */}
           <div className="flex flex-col items-center mb-8">
             <img
@@ -49,9 +47,15 @@ const Account = () => {
 
           {/* PROFILE */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2">
+            <h3
+              style={{
+                borderBottomColor: COLORS.primary, // border-bottom warna primary
+              }}
+              className="text-sm font-semibold text-gray-600 mb-3 border-b pb-2"
+            >
               PROFILE
             </h3>
+
             <ProfileMenuItem
               onClick={() => handleClick(() => navigate('/profile'))}
               icon={iconUser}
@@ -71,7 +75,12 @@ const Account = () => {
 
           {/* MEMBERSHIP */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2">
+            <h3
+              style={{
+                borderBottomColor: COLORS.primary, // border-bottom warna primary
+              }}
+              className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2"
+            >
               MEMBERSHIP & LOYALTY
             </h3>
             <ProfileMenuItem
@@ -93,7 +102,12 @@ const Account = () => {
 
           {/* BANTUAN */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2">
+            <h3
+              style={{
+                borderBottomColor: COLORS.primary, // border-bottom warna primary
+              }}
+              className="text-sm font-semibold text-gray-600 mb-3 border-b border-gray-300 pb-2"
+            >
               BANTUAN
             </h3>
             <ProfileMenuItem

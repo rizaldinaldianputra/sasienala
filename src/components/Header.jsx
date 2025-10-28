@@ -4,7 +4,7 @@ import { useProducts } from '../hook/useProduct';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [categories, setCategories] = useState();
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState();
   const { fetchCategories } = useProducts(false); // false biar tidak auto-fetch semua produk
   const navigate = useNavigate();
@@ -12,27 +12,43 @@ export default function Header() {
   const handleCartClick = () => navigate('/cart');
   const handleCartSearch = () => navigate('/product');
 
-  // ketika klik kategori, langsung ke product page dengan categoryId
   const handleCategorySelect = (id) => {
-    setIsOpen(false); // tutup drawer
-    navigate('/product', { state: { categoryId: id } });
+    if (selectedCategory === id) {
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(id);
+    }
   };
 
   useEffect(() => {
-    const getCategories = async () => {
-      try {
-        const cats = await fetchCategories();
-        setCategories(cats || []);
-      } catch (err) {
-        console.error('Gagal ambil kategori', err);
-        setCategories([]);
-      }
-    };
-    getCategories();
+    const cachedCategories = localStorage.getItem('categories');
+
+    if (cachedCategories) {
+      setCategories(JSON.parse(cachedCategories));
+    } else {
+      let isMounted = true;
+      const getCategories = async () => {
+        try {
+          const cats = await fetchCategories();
+          if (isMounted) {
+            setCategories(cats || []);
+            localStorage.setItem('categories', JSON.stringify(cats || []));
+          }
+        } catch (err) {
+          console.error('Gagal ambil kategori', err);
+          if (isMounted) setCategories([]);
+        }
+      };
+      getCategories();
+      return () => {
+        isMounted = false;
+      };
+    }
   }, [fetchCategories]);
 
   return (
     <>
+      {/* Header sticky di atas */}
       <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-2">
           <button className="text-gray-700" onClick={() => setIsOpen(true)}>
@@ -52,6 +68,7 @@ export default function Header() {
         </div>
       </header>
 
+      {/* Drawer */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black opacity-30" onClick={() => setIsOpen(false)}></div>
@@ -64,18 +81,28 @@ export default function Header() {
               ✕
             </button>
 
+            {/* Categories list */}
             <ul className="space-y-2 mb-4">
-              {(categories || []).map((cat) => (
-                <li
-                  key={cat?.category_id}
-                  className="flex justify-between items-center px-4 py-2 rounded cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleCategorySelect(cat?.category_id)}
-                >
-                  {cat?.display_category_name} <span>⌄</span>
-                </li>
-              ))}
+              {categories.length > 0 ? (
+                categories.map((cat) => (
+                  <li
+                    key={cat?.category_id}
+                    className={`flex justify-between items-center px-4 py-2 rounded cursor-pointer ${
+                      selectedCategory === cat?.category_id
+                        ? 'bg-orange-100 text-orange-500 font-semibold'
+                        : 'hover:bg-gray-100'
+                    }`}
+                    onClick={() => handleCategorySelect(cat?.category_id)}
+                  >
+                    {cat?.display_category_name} <span>⌄</span>
+                  </li>
+                ))
+              ) : (
+                <li className="px-4 py-2 text-gray-400">Loading categories...</li>
+              )}
             </ul>
 
+            {/* Lain-lain */}
             <div className="mt-6 space-y-2 text-orange-400 text-sm">
               <div>Campaign</div>
               <div>Event and Blog</div>

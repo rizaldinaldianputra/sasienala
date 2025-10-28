@@ -5,7 +5,7 @@ import BottomNav from '../components/BottomNav';
 import Header from '../components/Header';
 import { COLORS } from '../constants/colors';
 import { useUser } from '../hook/useUser';
-import { getToken, removeToken } from '../session/session';
+import { clearSession, getToken } from '../session/session';
 
 const Account = () => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const Account = () => {
   };
 
   const handleLogout = () => {
-    removeToken('token');
+    clearSession();
     navigate('/login', { replace: true });
   };
 

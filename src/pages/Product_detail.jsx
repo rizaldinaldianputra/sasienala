@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FiHeart } from 'react-icons/fi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import Header from '../components/Header';
 import { COLORS } from '../constants/colors';
 import { useCart } from '../hook/useCart';
 import { useProducts } from '../hook/useProduct';
@@ -12,6 +11,7 @@ import { getToken, getUserId } from '../session/session';
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // ====== Hooks & State ======
   const [searchKey, setSearchKey] = useState('');
@@ -163,7 +163,19 @@ const ProductDetail = () => {
       } else if (imageContainerRef.current.msRequestFullscreen) {
         imageContainerRef.current.msRequestFullscreen();
       }
+      setIsFullscreen(true); // <- ini penting
     }
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+    setIsFullscreen(false);
   };
 
   // ====== Handle add to cart ======
@@ -273,18 +285,66 @@ const ProductDetail = () => {
       : 0;
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-20">
-      <Header />
+      <div className="flex items-center justify-between px-4 h-12 bg-white shadow-md">
+        {/* Back Button */}
+        <button onClick={() => navigate('/')} className="p-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-gray-700"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <span className="font-['Tenor_Sans'] font-normal text-[18px] leading-[40px] tracking-[4px] text-gray-700">
+          DETAIL
+        </span>
+
+        {/* Right Icons */}
+        <div className="flex items-center gap-4">
+          {/* Share Icon */}
+
+          {/* Cart Icon */}
+          <button className="flex items-center justify-center">
+            <img
+              src="/bag.svg"
+              alt="Cart"
+              onClick={() => navigate('/cart')}
+              className="h-6 w-6 object-contain"
+            />
+          </button>
+        </div>
+      </div>
       {imageList.length > 0 && (
         <div className="relative bg-white" ref={imageContainerRef}>
           <img src={imageList[selectedImage]} alt={product.item_name} className="w-full h-auto" />
-          <button
-            onClick={handleFullscreen}
-            className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full border border-black/50 bg-black/50 hover:bg-black/70"
-          >
-            <img src="/resize.png" alt="Fullscreen" className="w-5 h-5" />
-          </button>
+
+          {/* Tombol fullscreen hanya tampil saat belum fullscreen */}
+          {!isFullscreen && (
+            <button
+              onClick={handleFullscreen}
+              className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full border border-black/50 bg-black/50 hover:bg-black/70"
+            >
+              <img src="/resize.png" alt="Fullscreen" className="w-5 h-5" />
+            </button>
+          )}
+
+          {/* Tombol minimize/back hanya muncul saat fullscreen */}
+          {isFullscreen && (
+            <button
+              onClick={exitFullscreen}
+              className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full border border-black/50 bg-black/50 hover:bg-black/70"
+            >
+              <img src="/resize.png" alt="Minimize" className="w-5 h-5" />
+            </button>
+          )}
         </div>
       )}
+
       <div className="overflow-x-auto py-2">
         <div className="flex gap-2 min-w-max px-2">
           {imageList.map((img, idx) => (
@@ -482,7 +542,7 @@ const ProductDetail = () => {
       </h1>
 
       <div className="grid grid-cols-2 gap-4">
-        {productList.map((item) => (
+        {productList.slice(0, 4).map((item) => (
           <Link key={item.item_id} to={`/product/${item.item_id}`} className="block relative group">
             <img src={item.image || 'https://via.placeholder.com/200x300'} alt={item.item_name} />
             <button className="absolute top-2 right-2 bg-white/70 rounded-full p-1">
@@ -579,7 +639,7 @@ const ProductDetail = () => {
               <h3 className="text-sm font-semibold text-gray-700 mb-2">Ukuran</h3>
               <div className="flex flex-wrap gap-2">
                 {product.model_list
-                  .find((m) => (m.color_code || m.color) === selectedColor)
+                  .find((m) => m.color === selectedColor)
                   ?.size_list?.map((size) => (
                     <button
                       key={size.model_id}

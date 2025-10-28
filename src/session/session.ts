@@ -1,8 +1,10 @@
 import Cookies from 'js-cookie';
 
+// ==================== TOKEN ====================
+
 // simpan token
 export const setToken = (token: string, expiresDays: number = 7) => {
-  Cookies.set('token', token, { expires: expiresDays });
+  Cookies.set('token', token, { expires: expiresDays, path: '/' });
 };
 
 // ambil token
@@ -12,20 +14,30 @@ export const getToken = (): string | null => {
 
 // hapus token
 export const removeToken = () => {
-  Cookies.remove('token');
+  Cookies.remove('token', { path: '/' });
 };
 
+// ==================== USER ID ====================
+
+// simpan userId
 export const setUserId = (userId: number, expiresDays: number = 7) => {
-  Cookies.set('userId', userId.toString(), { expires: expiresDays });
+  Cookies.set('userId', userId.toString(), { expires: expiresDays, path: '/' });
 };
 
-// ambil user_id
+// ambil userId
 export const getUserId = (): number | null => {
   const id = Cookies.get('userId');
   return id ? parseInt(id, 10) : null;
 };
 
-// hapus user_id
+// hapus userId
 export const removeUserId = () => {
-  Cookies.remove('userId');
+  Cookies.remove('userId', { path: '/' });
+};
+
+// ==================== CLEAR SESSION ====================
+
+// hapus semua session (token + userId)
+export const clearSession = () => {
+  Object.keys(Cookies.get()).forEach((c) => Cookies.remove(c, { path: '/' }));
 };

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNavSearch from '../components/BottomNavWithSearch';
 import Header from '../components/Header';
@@ -26,8 +26,12 @@ const Chat = ({ userId }) => {
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
+  useLayoutEffect(() => {
+    // delay sedikit supaya DOM sudah render (gambar / card)
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 50);
+    return () => clearTimeout(timer);
   }, [chats, isTyping]);
 
   // fetch product detail
@@ -54,15 +58,6 @@ const Chat = ({ userId }) => {
   }, [chats]);
 
   const handleSend = async (message) => {
-    if (!message.trim()) return;
-
-    const tempMessage = {
-      id: Date.now(),
-      role: 'user',
-      content: message,
-    };
-
-    setChats((prev) => [...(prev || []), tempMessage]);
     await sendMessage(message);
   };
 
@@ -269,8 +264,6 @@ const Chat = ({ userId }) => {
               </div>
             );
           })}
-
-          {/* Typing Indicator */}
         </div>
       </div>
 

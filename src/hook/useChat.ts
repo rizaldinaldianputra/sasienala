@@ -20,13 +20,26 @@ export const useChatBot = (userId: number) => {
 
   // Kirim pertanyaan dan tambahkan assistant message
   const sendMessage = async (query: string) => {
-    if (!query.trim()) return;
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    // Tambahkan pesan user langsung di sini (biar tidak double dari komponen)
+    const userMessage: ChatBot = {
+      id: Date.now(),
+      user_id: userId,
+      role: 'user',
+      content: trimmed,
+      payload: null,
+      source_type: null,
+      created_at: new Date().toISOString(),
+    };
+    setChats((prev) => [...prev, userMessage]);
 
     setIsTyping(true);
 
-    // Tambahkan dummy message untuk indikator mengetik
+    // Tambahkan dummy typing message
     const typingMessage: ChatBot = {
-      id: Date.now(),
+      id: Date.now() + 1,
       user_id: userId,
       role: 'assistant',
       content: 'Minsie sedang mengetik...',
@@ -37,11 +50,11 @@ export const useChatBot = (userId: number) => {
     setChats((prev) => [...prev, typingMessage]);
 
     try {
-      const res = await chatbotService.ask(userId, query);
+      const res = await chatbotService.ask(userId, trimmed);
       const response: ChatBotAskResponse = res.data;
 
       const assistantMessage: ChatBot = {
-        id: response.assistant_message_id || Date.now(),
+        id: response.assistant_message_id || Date.now() + 2,
         user_id: userId,
         role: 'assistant',
         content: response.answer,
@@ -50,7 +63,7 @@ export const useChatBot = (userId: number) => {
         created_at: new Date().toISOString(),
       };
 
-      // Ganti dummy message dengan jawaban asli
+      // Ganti dummy typing message dengan jawaban asli
       setChats((prev) => prev.map((m) => (m.id === typingMessage.id ? assistantMessage : m)));
 
       return response;

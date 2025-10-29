@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { API_KEY, BASE_URL } from '../constants/config';
+import { BASE_URL } from '../constants/config';
 import { getToken } from '../session/session';
 
 // Membuat instance Axios
@@ -8,7 +8,7 @@ const createApi = (baseURL: string = BASE_URL) =>
     baseURL,
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
+      'x-api-key': import.meta.env.VITE_API_KEY, // hidden di env
       Accept: 'application/json',
     },
   });

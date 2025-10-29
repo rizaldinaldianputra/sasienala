@@ -43,12 +43,16 @@ const Product = () => {
       await refetch();
       setSelectedCategory('all');
     } else {
-      await searchProduct(key);
+      const res = await searchProduct(key); // panggil search
       if (!searchHistory.includes(key)) {
         setSearchHistory([key, ...searchHistory]);
       }
       setSelectedCategory(null);
-      setLocalProducts([]);
+
+      console.log(res);
+      // ambil data dari res.data sesuai format respons
+      const products = Array.isArray(res?.data) ? res.data : [];
+      setLocalProducts(products);
     }
   };
 

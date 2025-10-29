@@ -46,7 +46,6 @@ const Transaksi = () => {
       {/* Transaction List */}
       <div className="p-4 sm:p-6 space-y-4">
         {loading && <div className="text-center text-gray-500">Loading...</div>}
-        {error && <div className="text-center text-red-500">{error}</div>}
         {!loading && !error && filteredTransactions.length === 0 && (
           <div className="text-center text-gray-500 mt-8">Tidak ada transaksi di status ini.</div>
         )}

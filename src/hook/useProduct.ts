@@ -36,8 +36,10 @@ export const useProducts = (autoFetchAll = true) => {
       setData(null);
       const res = await productService.searchProduct(key);
       setData(res.data);
+      return res.data; // <-- menambahkan return
     } catch (err: any) {
       setError('Produk tidak ditemukan');
+      return null;
     } finally {
       setLoading(false);
     }

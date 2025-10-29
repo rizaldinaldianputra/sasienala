@@ -173,10 +173,25 @@ const Product = () => {
                   <FiHeart className="text-gray-500" />
                 </button>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-700">{item.item_name}</p>
-                  <p className="font-semibold text-sm" style={{ color: COLORS.primary }}>
+                  <p
+                    className="text-[12px] leading-tight line-clamp-2"
+                    style={{
+                      color: '#404040',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {item.item_name?.length > 36
+                      ? item.item_name.substring(0, 36) + '…'
+                      : item.item_name}
+                  </p>
+                  <p className="font-semibold text-sm" style={{ color: '#DD8560' }}>
                     Rp.{item.price?.toLocaleString('id-ID')}
                   </p>
+
                   <p className="text-xs text-gray-500">⭐ {item.rating ?? 0} Ratings</p>
                 </div>
               </Link>

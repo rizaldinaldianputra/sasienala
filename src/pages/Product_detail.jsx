@@ -471,8 +471,12 @@ const ProductDetail = () => {
         </button>
       </div>
       <p
-        className="text-base leading-relaxed text-gray-600 m-3 mt-8 font-tenor whitespace-pre-line"
-        style={{ fontFamily: "'Work Sans', sans-serif" }}
+        className="m-3 mt-8 text-[14px] text-[#333333] font-tenor whitespace-pre-line"
+        style={{
+          fontFamily: "'Tenor Sans', sans-serif",
+          lineHeight: '24px',
+          letterSpacing: '0px',
+        }}
       >
         {product.description}
       </p>
@@ -535,8 +539,12 @@ const ProductDetail = () => {
         ))}
       </div>
       <h1
-        className="font-tenor text-[18px] text-gray-600 text-center mb-2"
-        style={{ lineHeight: '40px', letterSpacing: '4px' }}
+        className="font-tenor text-[16px] text-[#333333] text-center mb-2 uppercase"
+        style={{
+          fontFamily: "'Tenor Sans', sans-serif",
+          lineHeight: '20px',
+          letterSpacing: '2px',
+        }}
       >
         You may also like
       </h1>

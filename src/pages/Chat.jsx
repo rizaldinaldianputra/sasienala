@@ -56,9 +56,11 @@ const Chat = ({ userId }) => {
     };
     fetchProducts();
   }, [chats]);
-
   const handleSend = async (message) => {
     await sendMessage(message);
+    setTimeout(() => {
+      scrollToBottom();
+    }, 50);
   };
 
   const handleAddToCart = async (productId, modelId, quantity = 1) => {
@@ -265,9 +267,8 @@ const Chat = ({ userId }) => {
             );
           })}
         </div>
+        <BottomNavSearch onSubmit={handleSend} />
       </div>
-
-      <BottomNavSearch onSubmit={handleSend} />
     </div>
   );
 };

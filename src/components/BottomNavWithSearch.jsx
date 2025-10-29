@@ -53,22 +53,22 @@ export default function BottomNavSearch({ onSubmit }) {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex flex-col items-center z-50">
+    <div className="fixed bottom-0 left-1 right-1 flex flex-col items-center z-50">
       {/* Form input chat */}
       <form
-        className="flex w-full max-w-sm items-center gap-2 px-2 py-2 bg-white"
+        className="flex w-full max-w-sm bg-white rounded-full border border-gray-300 overflow-hidden mx-3 m-1 shadow-md"
         onSubmit={handleSubmit}
       >
         <input
           type="text"
-          className="flex-1 border rounded-full px-4 py-2 focus:outline-none text-sm"
+          className="flex-1 px-4 py-2 text-sm focus:outline-none mr-2"
           placeholder="Tulis pesan kamu.."
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
         <button
           type="submit"
-          className="flex-none w-10 h-10 bg-gray-300 rounded-full hover:bg-gray-400 flex items-center justify-center"
+          className="mr-1 flex-none w-10 h-10 px-3 bg-gray-300 hover:bg-gray-400 rounded-full flex items-center justify-center ml-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
